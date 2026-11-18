@@ -46,7 +46,7 @@ main{padding:16px 24px 40px}
 .kpi small{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
 .kpi em{font-style:normal;color:var(--glacier);font-size:13px}
 .split{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:14px;align-items:start}
-@media (max-width:900px){.split{grid-template-columns:1fr}}
+@media (max-width:900px){.split{grid-template-columns:minmax(0,1fr)}}
 .mapbox{position:relative;background:#e8e3d3;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .mapbox svg{display:block;width:100%;height:auto;aspect-ratio:1000/740;touch-action:none;cursor:grab}
 .mapbox svg.drag{cursor:grabbing}
@@ -128,7 +128,7 @@ tr.gone td{color:var(--mute)}
 .pager button:disabled{opacity:.35;cursor:default}
 .pager .gap{align-self:center;padding:0 2px}
 .ngrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:14px;align-items:start}
-@media (max-width:900px){.ngrid{grid-template-columns:1fr}}
+@media (max-width:900px){.ngrid{grid-template-columns:minmax(0,1fr)}}
 .nlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .nlist li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:10px 14px;background:var(--deep);border:1px solid var(--line);border-radius:10px}
 .nlist a{color:var(--fog);text-decoration:none;font-weight:600;line-height:1.35}.nlist a:hover{color:var(--glacier)}
@@ -156,6 +156,88 @@ tr:hover td{background:var(--deep)}
 .out div{background:var(--raise);border-radius:8px;padding:10px 12px}
 .out b{display:block;font:600 20px var(--mono)}
 .out small{color:var(--mute);font-size:12px}
+
+/* ---------- Mobile ---------- */
+.hcards{display:none}
+@media (min-width:721px){.showall{display:none!important}}
+.sortf{display:none}
+.mobnote{display:none}
+nav a svg{display:none}
+@media (max-width:720px){
+  html,body{font-size:15px}
+  header{padding:12px 14px 12px;gap:10px;align-items:center}
+  .brand h1{font-size:23px}
+  #meta{display:none}
+  .brand{flex:1 1 100%}
+  .opsw{margin-left:0;flex:0 0 auto;height:40px}
+  .opsw button{padding:0 14px}
+  .pmax{flex:1;min-width:0;height:40px}
+  .pmax #pLbl{display:none}
+  .pmax input{width:100%;min-width:0;height:40px;font-size:15px}
+  .pmax input::placeholder{font-family:var(--body);font-size:14px}
+  /* navegación como barra inferior */
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:20;height:auto;border-radius:0;border:0;border-top:1px solid var(--line);background:rgba(255,253,248,.97);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:6px 8px calc(6px + env(safe-area-inset-bottom));justify-content:space-around;gap:0}
+  nav a{flex:1;flex-direction:column;justify-content:center;gap:2px;height:52px;padding:0;font-size:12px;border-radius:12px}
+  nav a svg{display:block;width:22px;height:22px}
+  nav a[aria-current="page"]{background:rgba(30,106,134,.12);color:var(--glacier)}
+  main{padding:12px 14px calc(88px + env(safe-area-inset-bottom))}
+  /* KPIs en tira deslizable */
+  .kpis{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;margin:0 -14px 12px;padding:0 14px 2px;scrollbar-width:none}
+  .kpis::-webkit-scrollbar{display:none}
+  .kpi{flex:0 0 auto;min-width:150px;max-width:210px;scroll-snap-align:start;padding:9px 12px}
+  .kpi b{font-size:19px}
+  .kpi small{font-size:11px}
+  .kpi em{font-size:12px}
+  /* mapa */
+  .mapbox{display:flex;flex-direction:column;border-radius:12px}
+  .mapbox svg{order:1;aspect-ratio:auto;height:min(68vh,560px)}
+  .maptools{order:0;position:static;max-width:none;flex-wrap:nowrap;overflow-x:auto;padding:8px;gap:6px;background:var(--deep);border-bottom:1px solid var(--line);scrollbar-width:none}
+  .maptools::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;padding:8px 14px;font-size:14px}
+  .zoom{top:auto;bottom:calc(var(--legh,70px) + 10px);right:10px}
+  .zoom button{width:42px;height:42px;font-size:20px}
+  .legend{order:2;position:static;background:var(--deep);border-top:1px solid var(--line)}
+  .legend .ramp{width:110px}
+  .maptip,.scalebar{display:none!important}
+  .split > div > .note{display:none}
+  .mobnote{display:block}
+  .panel{padding:16px;gap:14px;scroll-margin-top:10px}
+  .panel h2{font-size:23px}
+  .mini li a{padding:11px 12px}
+  .panel.ranking .mini li.more{display:none}
+  .panel.ranking.all .mini li.more{display:block}
+  .showall{justify-self:start}
+  .backbtn{padding:9px 14px 9px 12px}
+  /* filtros */
+  .bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+  .bar > span[style]{display:none}
+  .field select,.field input{min-width:0;width:100%;height:42px;font-size:15px}
+  .sortf{display:grid}
+  .nkey{grid-column:1/-1;gap:10px}
+  /* casas como tarjetas */
+  .tablewrap{display:none}
+  .hcards{display:grid;gap:10px}
+  .hc{background:var(--deep);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:6px}
+  .hc.gone{opacity:.7}
+  .hc-top{display:flex;align-items:flex-start;gap:8px}
+  .hc-top .star{font-size:22px;padding:2px 2px 0 0}
+  .hc-b{flex:1;min-width:0;font-weight:600;line-height:1.3}
+  .hc-b .tag{margin:2px 4px 0 0}
+  .hc-p{font:600 17px var(--mono);white-space:nowrap}
+  .hc-f{color:var(--fog);font-size:14px}
+  .hc-m{color:var(--mute);font-size:13px}
+  .hc-l{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .hc-l a,.hc-l button{display:inline-flex;align-items:center;height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--raise);color:var(--glacier);font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+  .hc-l button{color:var(--mute);background:none}
+  .hc textarea{width:100%;min-height:70px;background:var(--ink);color:var(--fog);border:1px solid var(--line);border-radius:10px;padding:10px;font:15px var(--body)}
+  .hc .notetxt{max-width:none;white-space:normal}
+  .pager{justify-content:center}
+  .pager > span{width:100%;text-align:center}
+  .pager button{min-width:40px;height:40px}
+  /* noticias */
+  .nlist li{padding:12px}
+  .ntab th,.ntab td{padding:9px 4px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -168,9 +250,9 @@ tr:hover td{background:var(--deep)}
   <div class="opsw" role="group" aria-label="Operación"><button type="button" data-op="venta" aria-pressed="true">Venta</button><button type="button" data-op="alquiler" aria-pressed="false">Alquiler</button></div>
   <label class="pmax"><span id="pLbl">Precio máx. (USD)</span><input id="pMax" type="number" min="0" step="10000" inputmode="numeric" placeholder="Sin límite"><button id="pClr" type="button" hidden>quitar</button></label>
   <nav aria-label="Secciones">
-    <a href="#mapa" data-v="mapa">Mapa</a>
-    <a href="#casas" data-v="casas">Casas</a>
-    <a href="#noticias" data-v="noticias">Noticias</a>
+    <a href="#mapa" data-v="mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Mapa</a>
+    <a href="#casas" data-v="casas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/></svg>Casas</a>
+    <a href="#noticias" data-v="noticias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M7 9h10M7 12.5h10M7 16h6"/></svg>Noticias</a>
   </nav>
 </header>
 <main>
@@ -198,6 +280,7 @@ tr:hover td{background:var(--deep)}
         </div>
         <p class="note">Lagos, calles y límites de barrio de OpenStreetMap. Los barrios con borde continuo tienen límite oficial cargado en OSM; los de borde punteado son aproximados, armados alrededor del centro de cada barrio y las calles. El color es la métrica elegida. Tocá un barrio para ver su ficha; arrastrá para mover y usá la rueda o los botones para acercar.</p>
       </div>
+      <p class="note mobnote">Tocá un barrio para ver su ficha abajo. Arrastrá con un dedo y usá dos dedos o los botones para acercar.</p>
       <aside class="panel" id="panel" aria-live="polite"></aside>
     </div>
   </section>
@@ -208,6 +291,7 @@ tr:hover td{background:var(--deep)}
       <label class="field">Barrio<select id="fBarrio"></select></label>
       <label class="field">Dormitorios mín.<select id="fDorm"><option value="0">Todos</option><option>1</option><option selected>2</option><option>3</option></select></label>
       <label class="field">Buscar en<select id="fSrc"><option value="">Todas las fuentes</option></select></label>
+      <label class="field sortf">Ordenar<select id="fOrden"><option value="price:1">Más baratas</option><option value="price:-1">Más caras</option><option value="ppm2:1">Menor precio por m²</option><option value="days:1">Más nuevas</option><option value="m2cub:-1">Más grandes</option><option value="delta:1">Mayor baja de precio</option></select></label>
       <label class="field">Mostrar<select id="fEstado"><option value="act">Publicadas hoy</option><option value="fav">Favoritas y con notas</option><option value="baja">Dadas de baja</option></select></label>
       <span style="flex:1"></span>
       <label class="btn ghost" for="imp" hidden>Cargar relevamiento (.json)</label>
@@ -217,6 +301,7 @@ tr:hover td{background:var(--deep)}
     <div class="tablewrap"><table id="tbl"><thead><tr>
       <th data-k="barrio">Barrio</th><th data-k="price" class="r" id="thPrice">Precio</th><th data-k="m2cub" class="r">m² cub.</th><th data-k="ppm2" class="r" id="thPpm2">USD/m²</th><th data-k="m2tot" class="r">Lote m²</th><th data-k="dorm" class="r">Dorm.</th><th data-k="delta" class="r">Cambio</th><th data-k="days" class="r" title="Días desde que se publicó el aviso (fecha del portal o estimada por el número de aviso; si no, desde que lo vimos por primera vez)">Publicada</th><th>Avisos</th>
     </tr></thead><tbody></tbody></table></div>
+    <div class="hcards" id="hcards"></div>
     <div class="pager" id="pgCasas"></div>
   </section>
 
@@ -364,7 +449,9 @@ function barrioStats(){
 
 /* ---------- Mapa ---------- */
 const svg=document.getElementById("map");
-let vb={x:0,y:0,w:1000,h:740};
+const isMob=()=>matchMedia("(max-width:720px)").matches;
+const vbHome=()=>{if(!isMob())return {x:0,y:0,w:1000,h:740};const asp=(svg.clientHeight||500)/(svg.clientWidth||390),w=560,[cx,cy]=px(-71.648,-40.758);return {x:cx-w/2,y:cy-w*asp/2,w,h:w*asp}};
+let vb=vbHome();
 const KM=1/(111.32*Math.cos(40.76*Math.PI/180))/(BOUNDS.lon1-BOUNDS.lon0)*W;
 const setVB=()=>{svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);const sb=document.getElementById("scalebar");if(sb){let km=1,w=KM/vb.w*svg.clientWidth;if(w>160){km=.5;w/=2}if(w<50){km=2;w*=2}sb.style.width=w+"px";sb.dataset.km=km+" km"}};
 let MAP=null,AREA={};
@@ -437,14 +524,21 @@ svg.addEventListener("pointerover",e=>{const g=areaFrom(e);if(!g||drag){tip.hidd
 svg.addEventListener("pointermove",e=>{if(tip.hidden)return;const r=svg.parentNode.getBoundingClientRect();tip.style.left=(e.clientX-r.left+14)+"px";tip.style.top=(e.clientY-r.top+14)+"px"});
 svg.addEventListener("pointerleave",()=>tip.hidden=true);
 let drag=null,dragMoved=false;
-svg.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y};dragMoved=false;svg.setPointerCapture(e.pointerId);svg.classList.add("drag")});
-svg.addEventListener("pointermove",e=>{if(!drag)return;const sc=vb.w/svg.clientWidth;const dx=(e.clientX-drag.x)*sc,dy=(e.clientY-drag.y)*sc;if(Math.abs(dx)+Math.abs(dy)>3)dragMoved=true;vb.x=drag.vx-dx;vb.y=drag.vy-dy;setVB()});
-svg.addEventListener("pointerup",e=>{const was=drag&&!dragMoved;drag=null;svg.classList.remove("drag");if(was){const t=document.elementFromPoint(e.clientX,e.clientY);const g=t&&t.closest&&t.closest(".area");if(g){S.barrio=S.barrio===g.dataset.b?null:g.dataset.b;drawMap();drawPanel()}}setTimeout(()=>dragMoved=false,0)});
-let zt;function zoom(f,cx=vb.x+vb.w/2,cy=vb.y+vb.h/2){const nw=Math.max(120,Math.min(1200,vb.w*f));const nh=nw*H/W;vb.x=cx-(cx-vb.x)*nw/vb.w;vb.y=cy-(cy-vb.y)*nh/vb.h;vb.w=nw;vb.h=nh;setVB();clearTimeout(zt);zt=setTimeout(drawMap,120)}
+const PT=new Map();let pinch=null;
+const svgPt=(x,y)=>{const r=svg.getBoundingClientRect();return [vb.x+(x-r.left)/r.width*vb.w,vb.y+(y-r.top)/r.height*vb.h]};
+svg.addEventListener("pointerdown",e=>{PT.set(e.pointerId,[e.clientX,e.clientY]);if(PT.size===2){const [a,b]=[...PT.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),vb:{...vb},c:svgPt((a[0]+b[0])/2,(a[1]+b[1])/2)};drag=null;dragMoved=true;return}drag={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y};dragMoved=false;svg.setPointerCapture(e.pointerId);svg.classList.add("drag")});
+svg.addEventListener("pointermove",e=>{if(PT.has(e.pointerId))PT.set(e.pointerId,[e.clientX,e.clientY]);if(pinch&&PT.size===2){const [a,b]=[...PT.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);const f=pinch.d/d;const o=pinch.vb;const nw=Math.max(120,Math.min(1200,o.w*f)),k=nw/o.w;const [cx,cy]=pinch.c;vb={x:cx-(cx-o.x)*k,y:cy-(cy-o.y)*k,w:nw,h:o.h*k};setVB();return}if(!drag)return;const sc=vb.w/svg.clientWidth;const dx=(e.clientX-drag.x)*sc,dy=(e.clientY-drag.y)*sc;if(Math.abs(dx)+Math.abs(dy)>3)dragMoved=true;vb.x=drag.vx-dx;vb.y=drag.vy-dy;setVB()});
+const endPt=e=>{PT.delete(e.pointerId);if(pinch&&PT.size<2){pinch=null;clearTimeout(zt);zt=setTimeout(drawMap,60)}};
+svg.addEventListener("pointercancel",e=>{endPt(e);drag=null;svg.classList.remove("drag")});
+svg.addEventListener("pointerup",e=>{const wasPinch=!!pinch||PT.size>1;endPt(e);if(wasPinch){drag=null;svg.classList.remove("drag");return}const was=drag&&!dragMoved;drag=null;svg.classList.remove("drag");if(was){const t=document.elementFromPoint(e.clientX,e.clientY);const g=t&&t.closest&&t.closest(".area");if(g){S.barrio=S.barrio===g.dataset.b?null:g.dataset.b;drawMap();drawPanel();toPanel()}}setTimeout(()=>dragMoved=false,0)});
+let zt;function zoom(f,cx=vb.x+vb.w/2,cy=vb.y+vb.h/2){const nw=Math.max(120,Math.min(1200,vb.w*f));const nh=nw*(svg.clientHeight/svg.clientWidth||H/W);vb.x=cx-(cx-vb.x)*nw/vb.w;vb.y=cy-(cy-vb.y)*nh/vb.h;vb.w=nw;vb.h=nh;setVB();clearTimeout(zt);zt=setTimeout(drawMap,120)}
 svg.addEventListener("wheel",e=>{e.preventDefault();const r=svg.getBoundingClientRect();const cx=vb.x+(e.clientX-r.left)/r.width*vb.w,cy=vb.y+(e.clientY-r.top)/r.height*vb.h;zoom(e.deltaY>0?1.15:0.87,cx,cy)},{passive:false});
 document.getElementById("zin").onclick=()=>zoom(.8);
 document.getElementById("zout").onclick=()=>zoom(1.25);
-document.getElementById("zreset").onclick=()=>{vb={x:0,y:0,w:1000,h:740};setVB();drawMap()};
+document.getElementById("zreset").onclick=()=>{vb=vbHome();setVB();drawMap()};
+// al rotar o cambiar de tamaño, mantener el centro y ajustar la proporción del mapa
+let lastMob=isMob();new ResizeObserver(()=>{const m=isMob();if(m!==lastMob){lastMob=m;vb=vbHome();setVB();drawMap();return}const asp=svg.clientHeight/svg.clientWidth;if(!asp)return;const cy=vb.y+vb.h/2;vb.h=vb.w*asp;vb.y=cy-vb.h/2;setVB()}).observe(svg);
+(()=>{const lg=document.getElementById("legend");new ResizeObserver(()=>document.querySelector(".mapbox").style.setProperty("--legh",lg.offsetHeight+"px")).observe(lg)})();
 document.querySelectorAll(".maptools .chip").forEach(b=>b.onclick=()=>{S.metric=b.dataset.m;document.querySelectorAll(".maptools .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));drawMap();if(!S.barrio)drawPanel()});
 
 const pMax=document.getElementById("pMax"),pClr=document.getElementById("pClr");
@@ -455,6 +549,7 @@ function setOpUI(){
   document.querySelectorAll(".opsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.op===S.op));
   document.getElementById("pLbl").textContent=ALQ()?"Alquiler máx. ($/mes)":"Precio máx. (USD)";
   pMax.step=ALQ()?100000:10000;
+  pMax.placeholder=isMob()?(ALQ()?"Alquiler máx. $/mes":"Precio máx. USD"):"Sin límite";
   document.getElementById("chipPpm2").textContent=ALQ()?"$ por m²":"USD por m²";
   document.getElementById("chipMed").textContent=ALQ()?"Alquiler mediano":"Precio mediano";
   const imp=document.querySelector('label[for="imp"]');if(S.db)imp.hidden=ALQ();
@@ -469,6 +564,9 @@ document.querySelectorAll(".opsw button").forEach(b=>b.onclick=()=>{if(b.dataset
 if(ALQ()){S.metric="med";document.querySelectorAll(".maptools .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.m===S.metric))}
 setOpUI();
 /* ---------- Panel de barrio ---------- */
+// en el celular el panel queda debajo del mapa: al elegir un barrio se baja hasta su ficha, y al volver se sube al mapa
+const toPanel=()=>{if(isMob()&&S.barrio)requestAnimationFrame(()=>document.getElementById("panel").scrollIntoView({behavior:"smooth",block:"start"}))};
+const toMap=()=>{if(isMob())requestAnimationFrame(()=>document.querySelector(".mapbox").scrollIntoView({behavior:"smooth",block:"start"}))};
 function spark(tr){
   if(!tr||tr.length<2)return `<p class="note">Tendencia: primer registro el ${dfmt(tr?.[0]?.[0])}. La línea aparece con el segundo relevamiento.</p>`;
   const ys=tr.map(t=>t[1]),lo=Math.min(...ys),hi=Math.max(...ys),w=300,h=60;
@@ -494,7 +592,7 @@ function drawPanel(){
   const st=S.stats||{};
   if(!S.view.length){P.innerHTML=`<div class="eyebrow">Sin relevamientos</div><p>Todavía no hay datos de casas guardados.</p>`;return}
   const name=S.barrio;P.classList.remove("ranking");P.scrollTop=0;
-  if(name&&!st[name]&&AREA[name]){const a=AREA[name];P.innerHTML=`<button class="backbtn" id="back" type="button" aria-label="Volver al listado de barrios">← Todos los barrios</button><div><div class="eyebrow">Barrio · ${a.o?"límite oficial (OSM)":"límite aproximado"} · ${distC(a)}</div><h2>${esc(name)}</h2></div><p>No hay casas publicadas acá ${capped()?"hasta "+usd(budget()):"en este relevamiento"}.</p>${capped()?`<p class="note">Subí o quitá el precio máximo arriba para ver si hay oferta más cara.</p>`:""}${svcBlock(name)}${newsBlock(name)}`;P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};wireNews(P,name);return}
+  if(name&&!st[name]&&AREA[name]){const a=AREA[name];P.innerHTML=`<button class="backbtn" id="back" type="button" aria-label="Volver al listado de barrios">← Todos los barrios</button><div><div class="eyebrow">Barrio · ${a.o?"límite oficial (OSM)":"límite aproximado"} · ${distC(a)}</div><h2>${esc(name)}</h2></div><p>No hay casas publicadas acá ${capped()?"hasta "+usd(budget()):"en este relevamiento"}.</p>${capped()?`<p class="note">Subí o quitá el precio máximo arriba para ver si hay oferta más cara.</p>`:""}${svcBlock(name)}${newsBlock(name)}`;P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel();toMap()};wireNews(P,name);return}
   if(!name||!st[name]){
     const M=metric(S.metric);
     const src=S.metric==="seg"?Object.fromEntries(Object.entries(S.seg||{}).filter(([b])=>AREA[b]||b in st).map(([b,v])=>[b,{n:v.n,seg:v.hechos}])):st;
@@ -503,9 +601,10 @@ function drawPanel(){
     P.classList.add("ranking");
     P.innerHTML=`<div><div class="eyebrow">Toda la Villa · ${ALQ()?"alquiler · ":""}${capped()?"hasta "+usd(budget()):"todo el mercado"}</div><h2>${M.title}</h2></div>
     <p class="note">${rank.length?M.note:M.empty} Tocá un barrio del mapa para ver su ficha.${off.length?` Sin ubicar en el mapa: ${off.map(([b,s])=>esc(b)+" ("+s.n+")").join(", ")}.`:""}</p>
-    <ul class="mini">${rank.map(([b,s])=>`<li><a href="#mapa" data-b="${esc(b)}"><span>${esc(b)}${S.metric==="n"?"":S.metric==="vel"?` <small>· ${s.bajas} de baja</small>`:S.metric==="seg"?` <small>· ${s.n} noticia${s.n===1?"":"s"}</small>`:` <small>· ${s.n} casa${s.n===1?"":"s"}</small>`}</span><span class="num">${M.fmt(s[S.metric])}</span></a></li>`).join("")}</ul>
+    <ul class="mini">${rank.map(([b,s],i)=>`<li${i>=8?' class="more"':""}><a href="#mapa" data-b="${esc(b)}"><span>${esc(b)}${S.metric==="n"?"":S.metric==="vel"?` <small>· ${s.bajas} de baja</small>`:S.metric==="seg"?` <small>· ${s.n} noticia${s.n===1?"":"s"}</small>`:` <small>· ${s.n} casa${s.n===1?"":"s"}</small>`}</span><span class="num">${M.fmt(s[S.metric])}</span></a></li>`).join("")}</ul>${rank.length>8?`<button class="backbtn showall" type="button">Ver los ${rank.length} barrios</button>`:""}
     <div class="pulse"><div class="risk"><b>A tener en cuenta</b>${GENERAL.risk}</div></div>`;
-    P.querySelectorAll("[data-b]").forEach(a=>a.onclick=e=>{e.preventDefault();S.barrio=a.dataset.b;drawMap();drawPanel()});
+    P.querySelectorAll("[data-b]").forEach(a=>a.onclick=e=>{e.preventDefault();S.barrio=a.dataset.b;drawMap();drawPanel();toPanel()});
+    P.querySelector(".showall")?.addEventListener("click",e=>{P.classList.toggle("all");e.target.textContent=P.classList.contains("all")?"Ver menos":`Ver los ${rank.length} barrios`});
     return;
   }
   const s=st[name],B=BARRIOS[name]||{pulse:{}};
@@ -522,7 +621,7 @@ function drawPanel(){
   <p class="note">Notas orientativas armadas a partir de los avisos y del conocimiento general de la zona. Validalas con vecinos e inmobiliarias.</p></div>
   <div><div class="eyebrow">Casas más baratas</div><ul class="mini">${ps.slice(0,6).map(p=>`<li><a href="${p.links[0]}" target="_blank" rel="noopener"><span>${isFav(p)?"★ ":""}${p.dorm!=null?p.dorm+" dorm.":"Casa"}${p.m2cub?" · "+p.m2cub+" m²":""}${p.m2tot?" · lote "+p.m2tot:""}${tags(p)}</span><span class="num">${usd(p.price)}</span></a></li>`).join("")}</ul></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn ghost" href="#casas" id="verTodas">Ver las ${s.n} casas</a></div>`;
-  P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};
+  P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel();toMap()};
   P.querySelector("#verTodas").onclick=()=>{document.getElementById("fBarrio").value=name;S.pg.casas=1;drawTable()};
   wireNews(P,name);
 }
@@ -628,10 +727,24 @@ function drawTable(){
   tb.querySelectorAll(".star").forEach(b=>b.onclick=()=>{const p=pg[+b.dataset.i];setFav(p,{fav:!isFav(p)});drawTable()});
   tb.querySelectorAll(".notebtn").forEach(b=>b.onclick=()=>{const p=pg[+b.dataset.n];S.noteOpen=S.noteOpen===p.keys[0]?null:p.keys[0];drawTable();tb.querySelector("textarea")?.focus()});
   tb.querySelectorAll("textarea").forEach(t=>t.oninput=()=>setFav(pg[+t.dataset.t],{note:t.value.trim()}));
+  // tarjetas para el celular (misma página y orden que la tabla)
+  const HC=document.getElementById("hcards");
+  HC.innerHTML=pg.map((p,i)=>{const facts=[p.dorm!=null?p.dorm+" dorm.":null,p.m2cub?p.m2cub+" m² cub.":null,p.m2tot?"lote "+fmt(p.m2tot)+" m²":null,p.ppm2?fmt(p.ppm2)+" "+M2L():null].filter(Boolean).join(" · ");
+    const pubT=(p.pub&&p.pubEst?"~":"")+dias(p.days);
+    return `<article class="hc${gone.has(p)?" gone":""}"><div class="hc-top"><button class="star" data-i="${i}" aria-pressed="${isFav(p)}" aria-label="${isFav(p)?"Quitar de":"Agregar a"} favoritas">★</button><div class="hc-b">${esc(p.barrio)}<br>${tags(p)}${gone.has(p)?`<span class="tag">de baja</span>`:""}</div><div class="hc-p">${usd(p.price)}</div></div>
+    ${facts?`<div class="hc-f">${facts}</div>`:""}<div class="hc-m">Publicada ${pubT==="hoy"?"hoy":"hace "+pubT}${p.delta?` · ${p.delta>0?"subió":"bajó"} ${fmt(Math.abs(p.delta))}`:""}</div>
+    ${noteOf(p)&&S.noteOpen!==p.keys[0]?`<span class="notetxt">📝 ${esc(noteOf(p))}</span>`:""}
+    <div class="hc-l">${p.links.map((l,j)=>`<a href="${l}" target="_blank" rel="noopener">${esc(srcName(p.srcs[j]))} ↗</a>`).join("")}<button class="notebtn" data-n="${i}" type="button">${noteOf(p)?"Editar nota":"+ Nota"}</button></div>
+    ${S.noteOpen===p.keys[0]?`<textarea data-t="${i}" placeholder="Tus notas: visita, contacto, qué preguntar… Se guardan solo en este navegador.">${esc(noteOf(p))}</textarea>`:""}</article>`}).join("")||`<p class="note">No hay casas con estos filtros.</p>`;
+  HC.querySelectorAll(".star").forEach(b=>b.onclick=()=>{const p=pg[+b.dataset.i];setFav(p,{fav:!isFav(p)});drawTable()});
+  HC.querySelectorAll(".notebtn").forEach(b=>b.onclick=()=>{const p=pg[+b.dataset.n];S.noteOpen=S.noteOpen===p.keys[0]?null:p.keys[0];drawTable();HC.querySelector("textarea")?.focus()});
+  HC.querySelectorAll("textarea").forEach(t=>t.oninput=()=>setFav(pg[+t.dataset.t],{note:t.value.trim()}));
+  const fo=document.getElementById("fOrden"),sv=S.sort.k+":"+S.sort.d;if([...fo.options].some(o=>o.value===sv))fo.value=sv;
   const tc=S.lastSnap?.tc?.oficial;
-  document.getElementById("casasNote").textContent=(est==="baja"?`${rows.length} casas dadas de baja${S.dates.length<2?": se registran desde el segundo relevamiento":""}. Dada de baja no siempre es vendida.`:est==="fav"?`${rows.length} favoritas. Marcalas con la ★; quedan guardadas en este navegador, junto con tus notas.`:`${rows.length} casas ${OPW()}.`)+` Las que publican varios sitios a la vez se muestran una sola vez (×2, ×3…). Tocá un encabezado para ordenar.`+(ALQ()?` Alquileres permanentes, en pesos por mes; los temporarios quedan afuera. Los publicados en dólares (marcados US$) se pasan a pesos con el dólar oficial del ${dfmt(S.last)}${tc?" ($ "+fmt(tc)+")":""}.`:"");
+  document.getElementById("casasNote").textContent=(est==="baja"?`${rows.length} casas dadas de baja${S.dates.length<2?": se registran desde el segundo relevamiento":""}. Dada de baja no siempre es vendida.`:est==="fav"?`${rows.length} favoritas. Marcalas con la ★; quedan guardadas en este navegador, junto con tus notas.`:`${rows.length} casas ${OPW()}.`)+` Las que publican varios sitios a la vez se muestran una sola vez (×2, ×3…). ${isMob()?"":" Tocá un encabezado para ordenar."}`+(ALQ()?` Alquileres permanentes, en pesos por mes; los temporarios quedan afuera. Los publicados en dólares (marcados US$) se pasan a pesos con el dólar oficial del ${dfmt(S.last)}${tc?" ($ "+fmt(tc)+")":""}.`:"");
 }
 ["fBarrio","fDorm","fSrc","fEstado"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{S.pg.casas=1;drawTable()}));
+document.getElementById("fOrden").addEventListener("input",e=>{const [k,d]=e.target.value.split(":");S.sort={k,d:+d};S.pg.casas=1;drawTable()});
 document.querySelectorAll("#tbl th[data-k]").forEach(th=>th.onclick=()=>{S.sort={k:th.dataset.k,d:S.sort.k===th.dataset.k?-S.sort.d:1};S.pg.casas=1;drawTable()});
 
 /* ---------- Importar relevamiento ---------- */
