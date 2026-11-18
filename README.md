@@ -2,7 +2,7 @@
 
 Casas en venta en Villa La Angostura: mapa por barrio, listado con historial de precios y noticias por barrio (incluida la seguridad reportada en medios locales).
 
-- **Sitio:** GitHub Pages, se publica solo en cada push a `main` (`.github/workflows/pages.yml` sube `index.html` y `data/`).
+- **Sitio:** https://darioballerini.github.io/radar-angostura/ — GitHub Pages publica la rama `main` sola en cada push.
 - **App:** `index.html`, un solo archivo sin build. Lee `data/snapshots.json` (lista de relevamientos), `data/snapshot-AAAA-MM-DD.json`, `data/vla-map.json` y `data/noticias.json`.
 
 ## Actualizar los datos
