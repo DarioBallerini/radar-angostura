@@ -56,6 +56,7 @@ if (cfg.TOPE_ALQ) {
   if (a?.nuevas.length) partes.push(`🔑 <b>Alquileres nuevos hasta $ ${fmt(+cfg.TOPE_ALQ)}/mes</b>\n` + a.nuevas.map(a.linea).join("\n"));
 }
 const fecha = v?.fecha || new Date().toISOString().slice(0, 10);
-if (partes.length) await enviar(`<b>Radar Angostura · relevamiento del ${fecha}</b>\n\n${partes.join("\n\n")}\n\n<a href="${PAGINA}">Abrir el radar</a>`);
-else if (process.argv.includes("--prueba") || process.argv.includes("--siempre")) await enviar(`<b>Radar Angostura · ${fecha}</b>\nSin casas nuevas hasta USD ${fmt(tope)} ni bajas de precio${v ? "" : " (hace falta un segundo relevamiento para comparar)"}.\n<a href="${PAGINA}">Abrir el radar</a>`);
-console.log(`Alertas: ${v ? `${v.nuevas.length} nuevas, ${v.bajas.length} bajas` : "sin relevamiento anterior"} · ${partes.length ? "enviado" : "nada para avisar"}`);
+let enviado = false;
+if (partes.length) { enviado = true; await enviar(`<b>Radar Angostura · relevamiento del ${fecha}</b>\n\n${partes.join("\n\n")}\n\n<a href="${PAGINA}">Abrir el radar</a>`); }
+else if (process.argv.includes("--prueba") || process.argv.includes("--siempre")) { enviado = true; await enviar(`<b>Radar Angostura · ${fecha}</b>\nSin casas nuevas hasta USD ${fmt(tope)} ni bajas de precio${v ? "" : " (hace falta un segundo relevamiento para comparar)"}.\n<a href="${PAGINA}">Abrir el radar</a>`); }
+console.log(`Alertas: ${v ? `${v.nuevas.length} nuevas, ${v.bajas.length} bajas` : "sin relevamiento anterior"} · ${enviado ? "enviado" : "nada para avisar"}`);
