@@ -100,7 +100,16 @@ main{padding:16px 24px 40px}
 .btn.ghost{border-color:var(--line);color:var(--mute)}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:12px}
 .field{display:grid;gap:4px;font-size:12px;color:var(--mute)}
-.field input,.field select{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+.field input,.field select{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:0;color:var(--fog);font:inherit;font-size:14px}
+.field select{appearance:none;-webkit-appearance:none;padding-right:36px;min-width:150px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2386a19c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field select:hover,.field input:hover{border-color:#3d5d64}.field select:focus-visible,.field input:focus-visible{outline:2px solid var(--glacier);outline-offset:1px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mute)}
+.pager .pgs{display:flex;gap:4px;flex-wrap:wrap}
+.pager button{min-width:34px;height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--deep);color:var(--fog);cursor:pointer;font:600 13px var(--mono)}
+.pager button:hover:not(:disabled){border-color:var(--glacier);color:var(--glacier)}
+.pager button[aria-current="page"]{background:var(--glacier);border-color:var(--glacier);color:var(--ink)}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager .gap{align-self:center;padding:0 2px}
 .ngrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:14px;align-items:start}
 @media (max-width:900px){.ngrid{grid-template-columns:1fr}}
 .nlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -188,6 +197,7 @@ tr:hover td{background:var(--deep)}
     <div class="tablewrap"><table id="tbl"><thead><tr>
       <th data-k="barrio">Barrio</th><th data-k="price" class="r">Precio</th><th data-k="m2cub" class="r">m² cub.</th><th data-k="ppm2" class="r">USD/m²</th><th data-k="m2tot" class="r">Lote m²</th><th data-k="dorm" class="r">Dorm.</th><th data-k="delta" class="r">Cambio</th><th data-k="first">Visto desde</th><th>Avisos</th>
     </tr></thead><tbody></tbody></table></div>
+    <div class="pager" id="pgCasas"></div>
   </section>
 
   <!-- NOTICIAS -->
@@ -201,7 +211,7 @@ tr:hover td{background:var(--deep)}
     </div>
     <p class="note" id="newsNote">Cargando noticias…</p>
     <div class="ngrid">
-      <ul class="nlist" id="nlist"></ul>
+      <div><ul class="nlist" id="nlist"></ul><div class="pager" id="pgNews"></div></div>
       <aside class="panel">
         <div><div class="eyebrow">Por barrio · últimos 12 meses</div><h2 style="font-size:20px">Seguridad reportada</h2></div>
         <table class="ntab" id="ntab"><thead><tr><th>Barrio</th><th class="r" title="Hechos delictivos distintos (las notas de seguimiento del mismo hecho cuentan una vez)">Hechos</th><th class="r">Neg.</th><th class="r">Pos.</th></tr></thead><tbody></tbody></table>
@@ -393,7 +403,7 @@ document.getElementById("zreset").onclick=()=>{vb={x:0,y:0,w:1000,h:740};setVB()
 document.querySelectorAll(".maptools .chip").forEach(b=>b.onclick=()=>{S.metric=b.dataset.m;document.querySelectorAll(".maptools .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));drawMap();if(!S.barrio)drawPanel()});
 
 const pMax=document.getElementById("pMax"),pClr=document.getElementById("pClr");
-pMax.addEventListener("input",()=>{const v=+pMax.value;S.max=v>0?v:null;pClr.hidden=!S.max;try{localStorage.setItem("radar.pmax",S.max||"")}catch(e){}applyScope();drawMap();drawPanel();drawKpis();drawTable()});
+pMax.addEventListener("input",()=>{const v=+pMax.value;S.max=v>0?v:null;pClr.hidden=!S.max;S.pg.casas=1;try{localStorage.setItem("radar.pmax",S.max||"")}catch(e){}applyScope();drawMap();drawPanel();drawKpis();drawTable()});
 pClr.onclick=()=>{pMax.value="";pMax.dispatchEvent(new Event("input"))};
 try{const v=+localStorage.getItem("radar.pmax");if(v>0){S.max=v;pMax.value=v;pClr.hidden=false}}catch(e){}
 /* ---------- Panel de barrio ---------- */
@@ -443,7 +453,7 @@ function drawPanel(){
   <div><div class="eyebrow">Casas más baratas</div><ul class="mini">${ps.slice(0,6).map(p=>`<li><a href="${p.links[0]}" target="_blank" rel="noopener"><span>${p.dorm!=null?p.dorm+" dorm.":"Casa"}${p.m2cub?" · "+p.m2cub+" m²":""}${p.m2tot?" · lote "+p.m2tot:""}${tags(p)}</span><span class="num">${usd(p.price)}</span></a></li>`).join("")}</ul></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn ghost" href="#casas" id="verTodas">Ver las ${s.n} casas</a></div>`;
   P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};
-  P.querySelector("#verTodas").onclick=()=>{document.getElementById("fBarrio").value=name};
+  P.querySelector("#verTodas").onclick=()=>{document.getElementById("fBarrio").value=name;S.pg.casas=1;drawTable()};
   wireNews(P,name);
 }
 /* ---------- Noticias ---------- */
@@ -456,7 +466,7 @@ function newsBlock(name){
   <ul class="mini">${rs.slice(0,4).map(r=>`<li><a href="${esc(r.u)}" target="_blank" rel="noopener"><span><i class="dot ${dotOf(r)}"></i>${esc(r.t)}</span><span class="num" style="color:var(--mute)">${dfmt(r.d)}</span></a></li>`).join("")}</ul>
   <p style="margin:8px 0 0"><a class="btn ghost" href="#noticias" data-news="${esc(name)}">Ver las ${rs.length} noticias del barrio</a></p></div>`;
 }
-function wireNews(P,name){P.querySelectorAll("[data-news]").forEach(a=>a.onclick=()=>{document.getElementById("nBarrio").value=name;drawNews()})}
+function wireNews(P,name){P.querySelectorAll("[data-news]").forEach(a=>a.onclick=()=>{document.getElementById("nBarrio").value=name;S.pg.news=1;drawNews()})}
 function buildNews(j){
   const rows=j.rows.map(r=>Object.fromEntries(j.fields.map((f,i)=>[f,r[i]])));
   const seg={};
@@ -474,12 +484,13 @@ function drawNews(){
   const rs=S.news.rows.filter(r=>(!b||r.b.includes(b))&&(!src||r.s===src)&&(!t||(t==="del"?r.del:t==="neg"?!r.del&&r.tono<0:r.tono>0)));
   const F=S.news.fuentes;
   note.textContent=`${rs.length} noticias${b?" de "+b:""} entre el ${dfmt(S.news.desde)} ${S.news.desde.slice(0,4)} y el ${dfmt(S.news.date)} ${S.news.date.slice(0,4)}, de ${Object.values(F).map(f=>f.n).join(" y ")}. Solo se cuentan notas que nombran un barrio en el título o el primer párrafo.`;
-  document.getElementById("nlist").innerHTML=rs.slice(0,300).map(r=>`<li><i class="dot ${dotOf(r)}" title="${r.del?"Hecho delictivo":r.tono>0?"Positiva":r.tono<0?"Negativa":"Neutral"}"></i><div><a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.t)}</a><small>${dfmt(r.d)} ${r.d.slice(0,4)} · ${esc(F[r.s]?.n||r.s)} · ${r.b.map(esc).join(", ")}</small></div></li>`).join("")||`<li><i class="dot"></i><div>No hay noticias con ese filtro.</div></li>`;
+  const [n0,n1]=pager("pgNews","news",rs.length,20,drawNews,"newsNote");
+  document.getElementById("nlist").innerHTML=rs.slice(n0,n1).map(r=>`<li><i class="dot ${dotOf(r)}" title="${r.del?"Hecho delictivo":r.tono>0?"Positiva":r.tono<0?"Negativa":"Neutral"}"></i><div><a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.t)}</a><small>${dfmt(r.d)} ${r.d.slice(0,4)} · ${esc(F[r.s]?.n||r.s)} · ${r.b.map(esc).join(", ")}</small></div></li>`).join("")||`<li><i class="dot"></i><div>No hay noticias con ese filtro.</div></li>`;
   const rowsT=Object.entries(S.seg).sort((x,y)=>y[1].hechos-x[1].hechos||y[1].n-x[1].n);
   document.querySelector("#ntab tbody").innerHTML=rowsT.map(([n,z])=>`<tr data-b="${esc(n)}"${n===b?' style="background:var(--raise)"':""}><td>${esc(n)}</td><td class="r num" style="color:${z.hechos?"var(--bad)":"var(--mute)"}">${z.hechos}</td><td class="r num">${z.neg}</td><td class="r num">${z.pos}</td></tr>`).join("");
-  document.querySelectorAll("#ntab tr[data-b]").forEach(tr=>tr.onclick=()=>{const nb=document.getElementById("nBarrio");nb.value=nb.value===tr.dataset.b?"":tr.dataset.b;drawNews()});
+  document.querySelectorAll("#ntab tr[data-b]").forEach(tr=>tr.onclick=()=>{const nb=document.getElementById("nBarrio");nb.value=nb.value===tr.dataset.b?"":tr.dataset.b;S.pg.news=1;drawNews()});
 }
-["nBarrio","nTipo","nSrc"].forEach(id=>document.getElementById(id).addEventListener("input",drawNews));
+["nBarrio","nTipo","nSrc"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{S.pg.news=1;drawNews()}));
 fetch("data/noticias.json").then(r=>r.ok?r.json():null).then(j=>{if(!j)throw 0;buildNews(j);drawMap();drawPanel();drawNews()}).catch(()=>drawNews());
 const tags=p=>(p.delta<0?`<span class="tag down">−${k(-p.delta)}</span>`:p.delta>0?`<span class="tag up">+${k(p.delta)}</span>`:"")+(p.isNew?`<span class="tag new">nueva</span>`:"")+(p.srcs.length>1?`<span class="tag">×${p.srcs.length}</span>`:"")+(p.srcs.every(c=>!PORTALES.includes(c))?`<span class="tag" title="Solo en la web de la inmobiliaria">solo inmob.</span>`:"");
 
@@ -500,6 +511,19 @@ function drawKpis(){
 }
 
 /* ---------- Tabla ---------- */
+/* ---------- Paginado ---------- */
+S.pg={casas:1,news:1};
+function pager(id,key,total,per,onGo,anchor){
+  const el=document.getElementById(id),pages=Math.max(1,Math.ceil(total/per));
+  S.pg[key]=Math.min(Math.max(1,S.pg[key]),pages);const cur=S.pg[key];
+  if(total<=per){el.innerHTML=total?`<span>${total} en total</span>`:"";return [0,total]}
+  const nums=[...new Set([1,cur-1,cur,cur+1,pages].filter(n=>n>=1&&n<=pages))].sort((a,b)=>a-b);
+  let b="";nums.forEach((n,i)=>{if(i&&n-nums[i-1]>1)b+=`<span class="gap">…</span>`;b+=`<button data-p="${n}"${n===cur?' aria-current="page"':""} aria-label="Página ${n}">${n}</button>`});
+  const a=(cur-1)*per;
+  el.innerHTML=`<span>Mostrando ${a+1}–${Math.min(a+per,total)} de ${total}</span><div class="pgs"><button data-p="${cur-1}"${cur===1?" disabled":""} aria-label="Página anterior">‹</button>${b}<button data-p="${cur+1}"${cur===pages?" disabled":""} aria-label="Página siguiente">›</button></div>`;
+  el.querySelectorAll("button[data-p]").forEach(x=>x.onclick=()=>{S.pg[key]=+x.dataset.p;onGo();const t=document.getElementById(anchor);if(t.getBoundingClientRect().top<0)t.scrollIntoView({block:"start"})});
+  return [a,a+per];
+}
 function drawTable(){
   const fb=document.getElementById("fBarrio"),cur=fb.value;
   const names=[...new Set(S.props.map(p=>p.barrio))].sort();
@@ -508,11 +532,12 @@ function drawTable(){
   let rows=S.props.filter(p=>(!fb.value||p.barrio===fb.value)&&(!dmin||(p.dorm??0)>=dmin)&&p.price<=max&&(!src||p.srcs.includes(src)));
   const {k:key,d}=S.sort;
   rows.sort((a,b)=>{const x=a[key],y=b[key];if(x==null)return 1;if(y==null)return -1;return (x>y?1:x<y?-1:0)*d});
-  document.querySelector("#tbl tbody").innerHTML=rows.map(p=>`<tr><td>${esc(p.barrio)}${tags(p)}</td><td class="r num">${usd(p.price)}</td><td class="r num">${p.m2cub??"–"}</td><td class="r num">${p.ppm2?fmt(p.ppm2):"–"}</td><td class="r num">${p.m2tot??"–"}</td><td class="r num">${p.dorm??"–"}</td><td class="r num">${p.delta?(p.delta>0?"+":"−")+fmt(Math.abs(p.delta)):"–"}</td><td>${dfmt(p.first)}</td><td>${p.links.map((l,i)=>`<a href="${l}" target="_blank" rel="noopener">${esc(srcName(p.srcs[i]))}</a>`).join(" · ")}</td></tr>`).join("");
+  const [a0,a1]=pager("pgCasas","casas",rows.length,25,drawTable,"casasNote");
+  document.querySelector("#tbl tbody").innerHTML=rows.slice(a0,a1).map(p=>`<tr><td>${esc(p.barrio)}${tags(p)}</td><td class="r num">${usd(p.price)}</td><td class="r num">${p.m2cub??"–"}</td><td class="r num">${p.ppm2?fmt(p.ppm2):"–"}</td><td class="r num">${p.m2tot??"–"}</td><td class="r num">${p.dorm??"–"}</td><td class="r num">${p.delta?(p.delta>0?"+":"−")+fmt(Math.abs(p.delta)):"–"}</td><td>${dfmt(p.first)}</td><td>${p.links.map((l,i)=>`<a href="${l}" target="_blank" rel="noopener">${esc(srcName(p.srcs[i]))}</a>`).join(" · ")}</td></tr>`).join("");
   document.getElementById("casasNote").textContent=`${rows.length} casas. Las que publican varios sitios a la vez se muestran una sola vez (×2, ×3…). Tocá un encabezado para ordenar.`;
 }
-["fBarrio","fDorm","fSrc"].forEach(id=>document.getElementById(id).addEventListener("input",drawTable));
-document.querySelectorAll("#tbl th[data-k]").forEach(th=>th.onclick=()=>{S.sort={k:th.dataset.k,d:S.sort.k===th.dataset.k?-S.sort.d:1};drawTable()});
+["fBarrio","fDorm","fSrc"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{S.pg.casas=1;drawTable()}));
+document.querySelectorAll("#tbl th[data-k]").forEach(th=>th.onclick=()=>{S.sort={k:th.dataset.k,d:S.sort.k===th.dataset.k?-S.sort.d:1};S.pg.casas=1;drawTable()});
 
 /* ---------- Importar relevamiento ---------- */
 document.getElementById("imp").onchange=async e=>{
