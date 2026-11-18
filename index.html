@@ -158,17 +158,6 @@ tr:hover td{background:var(--deep)}
 .out small{color:var(--mute);font-size:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
-<script>
-/* Vista previa de tipografías: ?fuente=1..4 (no cambia nada si no se pasa el parámetro) */
-(()=>{const F={
- "1":["Fraunces:opsz,wght@9..144,600;9..144,800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600","Fraunces","Work Sans","IBM Plex Mono"],
- "2":["Instrument+Serif&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;600","Instrument Serif","Instrument Sans","Geist Mono"],
- "3":["DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500","DM Serif Display","DM Sans","DM Mono"],
- "4":["Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600","Plus Jakarta Sans","Plus Jakarta Sans","IBM Plex Mono"]};
- const f=F[new URLSearchParams(location.search).get("fuente")];if(!f)return;
- document.write(`<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${f[0]}&display=swap"><style>:root{--display:"${f[1]}",serif;--body:"${f[2]}",sans-serif;--mono:"${f[3]}",monospace}${f[1].includes("Instrument Serif")||f[1].includes("DM Serif")?".brand h1,h2,h3{font-weight:400!important;letter-spacing:0}":""}</style>`);
-})();
-</script>
 </head>
 <body>
 <header>
