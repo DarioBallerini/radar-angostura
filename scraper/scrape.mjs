@@ -1,4 +1,4 @@
-// Relevamiento de todas las casas en venta en Villa La Angostura.
+// Relevamiento de todas las casas en venta y en alquiler en Villa La Angostura.
 // Uso: npm install && npx playwright install chromium && npm run scrape
 // Genera ../data/snapshot-AAAA-MM-DD.json (todas las casas, sin tope de precio) para cargar en Radar Angostura (pestaña Casas → "Cargar relevamiento").
 import { chromium } from "playwright";
@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { relevar, normalizar, sourcesMeta } from "./locales.mjs";
 import * as noticias from "./noticias.mjs";
+import * as alquileres from "./alquileres.mjs";
 
 // Se releva todo el mercado; el presupuesto se filtra en la app.
 const OUT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../data");
@@ -112,6 +113,12 @@ try {
   console.log(`Inmobiliarias locales: ${filas.length} casas (descartadas ${descartes.length})`);
   rows.push(...filas);
 } catch (e) { console.error("Inmobiliarias locales fallaron:", e.message); }
+// Casas en alquiler permanente → data/alquiler-<fecha>.json (en pesos por mes)
+try {
+  await alquileres.relevar(page, date);
+  const r = alquileres.normalizar(date);
+  console.log(`Alquileres: ${r.filas.length} casas (descartados ${r.descartes.length}, temporarios incluidos)`);
+} catch (e) { console.error("Alquileres fallaron:", e.message); }
 // Noticias por barrio de los medios locales → data/noticias.json
 try {
   await noticias.relevar(page, date);

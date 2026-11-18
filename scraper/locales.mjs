@@ -182,7 +182,7 @@ const ALIAS = {
   "el once": "El Once", "barrio once": "El Once", "b once": "El Once", "bel once": "El Once",
   "tres cerros": "Tres Cerros", "3 cerros": "Tres Cerros", "akol": "Tres Cerros",
   "peumayen": "Peumayén", "epulafquen": "Epulafquen", "epulaufquen": "Epulafquen",
-  "las balsas": "Las Balsas", "ruca hue": "Las Balsas", "alfa centauro": "Las Balsas",
+  "las balsas": "Las Balsas", "barrio balsas": "Las Balsas", "b balsas": "Las Balsas", "ruca hue": "Las Balsas", "alfa centauro": "Las Balsas",
   "las piedritas": "Las Piedritas", "los volcanes": "Los Volcanes", "volcanes": "Los Volcanes",
   "el cruce": "El Cruce", "las margaritas": "Las Margaritas", "b margaritas": "Las Margaritas",
   "el mallin": "El Mallín", "barrio mallin": "El Mallín",
@@ -196,13 +196,13 @@ const ALIAS = {
   "centro": "Centro", "centrico": "Centro", "el mercado": "Centro",
 };
 const AKEYS = Object.keys(ALIAS).sort((a, b) => b.length - a.length);
-const barrioTexto = (...t) => { const s = plain(t.filter(Boolean).join(" ")); const a = AKEYS.find(a => s.includes(" " + a + " ")); return a ? ALIAS[a] : null; };
+export const barrioTexto = (...t) => { const s = plain(t.filter(Boolean).join(" ")); const a = AKEYS.find(a => s.includes(" " + a + " ")); return a ? ALIAS[a] : null; };
 
 function enAnillo([x, y], ring) { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i], [xj, yj] = ring[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
 const enPoligono = (pt, poly) => enAnillo(pt, poly[0]) && !poly.slice(1).some(h => enAnillo(pt, h));
 function distSeg([px, py], [ax, ay], [bx, by]) { const dx = bx - ax, dy = by - ay, t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy || 1))); return Math.hypot(px - ax - t * dx, py - ay - t * dy); }
 let AREAS = null;
-function barrioGeo(lat, lon) {
+export function barrioGeo(lat, lon) {
   if (lat == null || lon == null) return null;
   if ((lat === -40.7628 && lon === -71.6468) || (lat === -40.7616474 && lon === -71.6447641)) return null; // ubicación genérica del sitio
   AREAS ??= JSON.parse(fs.readFileSync(path.join(DATA, "vla-map.json"), "utf8")).areas;
@@ -212,7 +212,7 @@ function barrioGeo(lat, lon) {
   for (const a of AREAS) for (const poly of a.p) { const r = poly[0]; for (let i = 1; i < r.length; i++) { const d = distSeg(pt, r[i - 1], r[i]); if (d < bd) { bd = d; best = a.n; } } }
   return bd < 0.004 ? best : null; // ~300 m
 }
-const enVLA = (lat, lon) => lat == null || (lat > -40.83 && lat < -40.70 && lon > -71.75 && lon < -71.55);
+export const enVLA = (lat, lon) => lat == null || (lat > -40.83 && lat < -40.70 && lon > -71.75 && lon < -71.55);
 const NO_CASA = /alquiler|departamento-local|departamentos-locales|cs-614-departamento|lote-de-109|san-luis|san-martin|meliquina|bariloche|chubut|llanquin|lago-hermoso/i;
 const n = s => { if (s == null) return null; if (typeof s === "number") return s; const d = String(s).replace(/[^\d]/g, ""); return d ? Number(d) : null; };
 
@@ -270,7 +270,7 @@ export const sourcesMeta = () => ({
 });
 
 // node locales.mjs --build FECHA  → suma las filas locales al snapshot-FECHA.json existente
-if (process.argv[2] === "--build") {
+if (process.argv[1] === new URL(import.meta.url).pathname && process.argv[2] === "--build") {
   const fecha = process.argv[3];
   const file = path.join(DATA, `snapshot-${fecha}.json`);
   const snap = JSON.parse(fs.readFileSync(file, "utf8"));
