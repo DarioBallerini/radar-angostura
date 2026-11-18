@@ -106,6 +106,11 @@ main{padding:16px 24px 40px}
 .field input,.field select{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:0;color:var(--fog);font:inherit;font-size:14px}
 .field select{appearance:none;-webkit-appearance:none;padding-right:36px;min-width:150px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2386a19c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .field select:hover,.field input:hover{border-color:#3d5d64}.field select:focus-visible,.field input:focus-visible{outline:2px solid var(--glacier);outline-offset:1px}
+.star{background:none;border:0;cursor:pointer;font-size:16px;line-height:1;color:var(--line);padding:0 6px 0 0;vertical-align:-1px}.star[aria-pressed="true"]{color:#e8c25a}
+.notebtn{background:none;border:0;cursor:pointer;color:var(--mute);font-size:12px;text-decoration:underline;padding:0;margin-left:6px}
+.noterow td{background:var(--deep);padding:8px 12px}.noterow textarea{width:100%;min-height:54px;background:var(--ink);color:var(--fog);border:1px solid var(--line);border-radius:8px;padding:8px;font:14px inherit;resize:vertical}
+.notetxt{display:block;color:var(--mute);font-size:12px;margin-top:3px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+tr.gone td{color:var(--mute)}
 .pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mute)}
 .pager .pgs{display:flex;gap:4px;flex-wrap:wrap}
 .pager button{min-width:34px;height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--deep);color:var(--fog);cursor:pointer;font:600 13px var(--mono)}
@@ -176,6 +181,7 @@ tr:hover td{background:var(--deep)}
             <button class="chip" data-m="med" aria-pressed="false" id="chipMed">Precio mediano</button>
             <button class="chip" data-m="n" aria-pressed="false">Oferta</button>
             <button class="chip" data-m="var" aria-pressed="false">Variación</button>
+            <button class="chip" data-m="vel" aria-pressed="false">Velocidad</button>
             <button class="chip" data-m="seg" aria-pressed="false">Seguridad</button>
           </div>
           <div class="zoom"><button id="zin" aria-label="Acercar">+</button><button id="zout" aria-label="Alejar">−</button><button id="zreset" aria-label="Ver todo" style="font-size:13px">⤢</button></div>
@@ -193,13 +199,14 @@ tr:hover td{background:var(--deep)}
       <label class="field">Barrio<select id="fBarrio"></select></label>
       <label class="field">Dormitorios mín.<select id="fDorm"><option value="0">Todos</option><option>1</option><option selected>2</option><option>3</option></select></label>
       <label class="field">Buscar en<select id="fSrc"><option value="">Todas las fuentes</option></select></label>
+      <label class="field">Mostrar<select id="fEstado"><option value="act">Publicadas hoy</option><option value="fav">Favoritas y con notas</option><option value="baja">Dadas de baja</option></select></label>
       <span style="flex:1"></span>
       <label class="btn ghost" for="imp" hidden>Cargar relevamiento (.json)</label>
       <input id="imp" type="file" accept=".json,application/json" hidden>
     </div>
     <p class="note" id="casasNote"></p>
     <div class="tablewrap"><table id="tbl"><thead><tr>
-      <th data-k="barrio">Barrio</th><th data-k="price" class="r" id="thPrice">Precio</th><th data-k="m2cub" class="r">m² cub.</th><th data-k="ppm2" class="r" id="thPpm2">USD/m²</th><th data-k="m2tot" class="r">Lote m²</th><th data-k="dorm" class="r">Dorm.</th><th data-k="delta" class="r">Cambio</th><th data-k="first">Visto desde</th><th>Avisos</th>
+      <th data-k="barrio">Barrio</th><th data-k="price" class="r" id="thPrice">Precio</th><th data-k="m2cub" class="r">m² cub.</th><th data-k="ppm2" class="r" id="thPpm2">USD/m²</th><th data-k="m2tot" class="r">Lote m²</th><th data-k="dorm" class="r">Dorm.</th><th data-k="delta" class="r">Cambio</th><th data-k="days" class="r" title="Días desde que se publicó el aviso (fecha del portal o estimada por el número de aviso; si no, desde que lo vimos por primera vez)">Publicada</th><th>Avisos</th>
     </tr></thead><tbody></tbody></table></div>
     <div class="pager" id="pgCasas"></div>
   </section>
@@ -268,6 +275,8 @@ let SOURCES={...SOURCES_BASE};
 const PORTALES=["a","z"];
 const srcName=c=>SOURCES[c]?.[0]||c;
 const urlOf=(src,id,slug)=>(SOURCES[src]?.[1]||"#").replace("{slug}",slug||"villa-la-angostura").replace("{id}",id);
+const dd=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
+const dias=n=>n==null?"–":n<1?"hoy":n<60?n+" d":n<730?Math.round(n/30.4)+" meses":(n/365).toFixed(1).replace(".",",")+" años";
 const dfmt=d=>d?new Date(d+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"short"}):"–";
 
 /* ---------- Modelo: relevamientos -> propiedades ---------- */
@@ -284,20 +293,34 @@ function buildProps(){
       const key=o.src+":"+o.id;
       let l=L.get(key);
       if(!l){l={...o,hist:[],first:s.date};L.set(key,l)}
-      Object.assign(l,{usd:o.usd??null,price:o.price,barrio:o.barrio,m2cub:o.m2cub??l.m2cub,m2tot:o.m2tot??l.m2tot,dorm:o.dorm??l.dorm,slug:o.slug??l.slug});
+      Object.assign(l,{usd:o.usd??null,pub:o.pub??l.pub,pubEst:o.pubEst??l.pubEst,price:o.price,barrio:o.barrio,m2cub:o.m2cub??l.m2cub,m2tot:o.m2tot??l.m2tot,dorm:o.dorm??l.dorm,slug:o.slug??l.slug});
       l.hist.push([s.date,o.price]);l.lastSeen=s.date;
     }
   }
   const active=[...L.values()].filter(l=>l.lastSeen===last);
+  // dados de baja: estaban en un relevamiento anterior y ya no están (solo fuentes que respondieron en el último)
+  const lastSrcs=new Set((snaps.at(-1)?.rows||[]).map(r=>r[0]));
+  const goneL=[...L.values()].filter(l=>l.lastSeen!==last&&lastSrcs.has(l.src));
   // agrupar el mismo inmueble publicado en varios sitios (portales e inmobiliarias)
   const props=[];
   for(const l of active){
     const near=(x,y)=>!x||!y||Math.abs(x-y)<=Math.max(6,.08*Math.max(x,y));
     const twin=props.find(p=>!p.srcs.includes(l.src)&&p.price===l.price&&(p.barrio===l.barrio||p.barrio==="Sin barrio"||l.barrio==="Sin barrio")&&(p.dorm==null||l.dorm==null||p.dorm===l.dorm)&&near(p.m2cub,l.m2cub));
-    if(twin){if(twin.barrio==="Sin barrio")twin.barrio=l.barrio;twin.dorm=twin.dorm??l.dorm;twin.srcs.push(l.src);twin.links.push(urlOf(l.src,l.id,l.slug));twin.m2cub=twin.m2cub||l.m2cub;twin.m2tot=twin.m2tot||l.m2tot;if(l.first<twin.first)twin.first=l.first;if(l.hist.length>twin.hist.length)twin.hist=l.hist;continue}
-    props.push({...l,srcs:[l.src],links:[urlOf(l.src,l.id,l.slug)]});
+    if(twin){if(twin.barrio==="Sin barrio")twin.barrio=l.barrio;if(l.pub&&(!twin.pub||l.pub<twin.pub)){twin.pub=l.pub;twin.pubEst=l.pubEst}twin.keys.push(l.src+":"+l.id);twin.dorm=twin.dorm??l.dorm;twin.srcs.push(l.src);twin.links.push(urlOf(l.src,l.id,l.slug));twin.m2cub=twin.m2cub||l.m2cub;twin.m2tot=twin.m2tot||l.m2tot;if(l.first<twin.first)twin.first=l.first;if(l.hist.length>twin.hist.length)twin.hist=l.hist;continue}
+    props.push({...l,srcs:[l.src],links:[urlOf(l.src,l.id,l.slug)],keys:[l.src+":"+l.id]});
   }
-  for(const p of props){const v=p.m2cub>=35?p.price/p.m2cub:null;p.ppm2=v&&(ALQ()?v>=2000&&v<=200000:v>=300&&v<=12000)?v:null;p.delta=p.hist.length>1?p.price-p.hist[0][1]:0;p.isNew=snaps.length>1&&p.first===last}
+  const near=(x,y)=>!x||!y||Math.abs(x-y)<=Math.max(6,.08*Math.max(x,y));
+  const same=(p,l)=>p.price===l.price&&(p.barrio===l.barrio||p.barrio==="Sin barrio"||l.barrio==="Sin barrio")&&(p.dorm==null||l.dorm==null||p.dorm===l.dorm)&&near(p.m2cub,l.m2cub);
+  const gone=[];
+  for(const l of goneL){
+    if(props.some(p=>same(p,{...l,price:p.price===l.price?l.price:l.hist.at(-1)[1]})))continue; // sigue publicada en otro sitio
+    const tw=gone.find(g=>!g.srcs.includes(l.src)&&same(g,l));
+    if(tw){tw.srcs.push(l.src);tw.links.push(urlOf(l.src,l.id,l.slug));tw.keys.push(l.src+":"+l.id);if(l.lastSeen>tw.lastSeen)tw.lastSeen=l.lastSeen;continue}
+    gone.push({...l,srcs:[l.src],links:[urlOf(l.src,l.id,l.slug)],keys:[l.src+":"+l.id]});
+  }
+  for(const g of gone){g.since=g.pub||g.first;g.goneOn=snaps.find(s=>s.date>g.lastSeen)?.date||last;g.days=dd(g.since,g.goneOn);g.delta=g.hist.length>1?g.price-g.hist[0][1]:0}
+  S.gone=gone;
+  for(const p of props){const v=p.m2cub>=35?p.price/p.m2cub:null;p.ppm2=v&&(ALQ()?v>=2000&&v<=200000:v>=300&&v<=12000)?v:null;p.delta=p.hist.length>1?p.price-p.hist[0][1]:0;p.isNew=snaps.length>1&&p.first===last;p.since=p.pub||p.first;p.days=dd(p.since,last)}
   const fs=document.getElementById("fSrc"),cur=fs.value,used=[...new Set(props.flatMap(p=>p.srcs))].sort((x,y)=>(PORTALES.includes(y)-PORTALES.includes(x))||srcName(x).localeCompare(srcName(y)));
   fs.innerHTML=`<option value="">Todas las fuentes</option>`+used.map(c=>`<option value="${c}">${esc(srcName(c))}${PORTALES.includes(c)?"":" (inmobiliaria)"}</option>`).join("");fs.value=used.includes(cur)?cur:"";
   S.props=props;S.last=last;S.dates=snaps.map(s=>s.date);S.lastSnap=snaps.at(-1);
@@ -306,7 +329,7 @@ function buildProps(){
 const capped=()=>S.max>0;
 const budget=()=>capped()?S.max:Infinity;
 const inScope=price=>price<=budget();
-function applyScope(){S.view=S.props.filter(p=>inScope(p.price))}
+function applyScope(){S.view=S.props.filter(p=>inScope(p.price));S.goneView=(S.gone||[]).filter(p=>inScope(p.price))}
 function barrioStats(){
   const by={};
   for(const p of S.view){(by[p.barrio]??=[]).push(p)}
@@ -323,6 +346,10 @@ function barrioStats(){
     for(const [b,a] of Object.entries(by2)){if(out[b]){(out[b].trend??=[]).push([s.date,median(a)])}}
   }
   for(const b in out)(out[b].trend||[]).sort((x,y)=>x[0].localeCompare(y[0]));
+  // velocidad: días que tardaron en darse de baja (mediana) y cuántas se dieron de baja
+  const gb={};for(const g of S.goneView||[])(gb[g.barrio]??=[]).push(g);
+  for(const [b,gs] of Object.entries(gb))if(out[b]){out[b].bajas=gs.length;out[b].vel=median(gs.map(g=>g.days))}
+  for(const b in out){out[b].bajas??=0;out[b].dias=median(out[b].ps.map(p=>p.days))}
   return out;
 }
 
@@ -363,12 +390,12 @@ function drawMap(){
   const lbls=[];
   for(const a of MAP.areas){
     const s=st[a.n];const v=getV(a.n);
-    const has=SEG?v!=null:s&&!(S.metric==="var"&&(v==null||isNaN(v)));
+    const has=SEG?v!=null:s&&!((S.metric==="var"||S.metric==="vel")&&(v==null||isNaN(v)));
     const fill=SEG?(has?colorFor(norm(v)):"#3a5257"):!s?"url(#nod)":has?colorFor(norm(v)):"#3a5257";
     const sel=S.barrio===a.n?" sel":"";
     g+=`<path class="area${sel}${a.o?"":" approx"}" data-b="${esc(a.n)}" d="${a.d}" fill="${fill}" fill-opacity="${s||SEG?.82:1}" tabindex="0" role="button" aria-label="${esc(a.n)}: ${s?s.n+" casas":"sin casas publicadas"}" vector-effect="non-scaling-stroke"/>`;
     if(SEG){lbls.push({a,s:v>0,val:v>0?v+(v===1?" hecho":" hechos"):"",sel});continue}
-    const val=!s?"":S.metric==="ppm2"?(v?fmt(v):"s/d"):S.metric==="med"?k(v):S.metric==="n"?v:(v==null||isNaN(v)?"s/d":(v>0?"+":"")+v.toFixed(1)+"%");
+    const val=!s?"":S.metric==="vel"?(v==null?"s/d":dias(v)):S.metric==="ppm2"?(v?fmt(v):"s/d"):S.metric==="med"?k(v):S.metric==="n"?v:(v==null||isNaN(v)?"s/d":(v>0?"+":"")+v.toFixed(1)+"%");
     lbls.push({a,s,val,sel});
   }
   g+=`<path d="${MAP.RD}" fill="none" stroke="#0c1a1d" stroke-width="4" stroke-opacity=".55" vector-effect="non-scaling-stroke" pointer-events="none"/><path d="${MAP.RD}" fill="none" stroke="#c9a27a" stroke-width="1.6" stroke-opacity=".75" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
@@ -390,9 +417,9 @@ function drawMap(){
   g+=`<g pointer-events="none"><path d="M${bx} ${by} h${sx1-sx0}" stroke="#86a19c" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${bx+(sx1-sx0)/2}" y="${by-5*zs}" text-anchor="middle" font-size="${10*zs}" font-family="JetBrains Mono" fill="#86a19c">1 km</text></g>`;
   svg.innerHTML=g;
   const lg=document.getElementById("legend");
-  const label={ppm2:ALQ()?"Pesos por m² cubierto por mes (mediana)":"USD por m² cubierto (mediana)",med:ALQ()?"Alquiler mensual mediano":"Precio mediano",n:"Casas publicadas",var:"Variación de precio desde el primer relevamiento",seg:"Hechos delictivos reportados en medios locales (12 meses)"}[S.metric];
-  const fmtL=v=>S.metric==="var"?(v>0?"+":"")+v.toFixed(1)+"%":S.metric==="n"||SEG?v:usd(v);
-  lg.innerHTML=(vals.length?`<span>${label} · color por ranking</span><span class="num">${fmtL(lo)}</span><span class="ramp" style="background:linear-gradient(90deg,${RAMP.join(",")})"></span><span class="num">${fmtL(hi)}</span>`:(SEG?`<span>${label}: cargando…</span>`:`<span>${label}: sin datos todavía. Aparece desde el segundo relevamiento.</span>`))+`<span class="sw nod"></span><span>sin avisos</span><span class="sw dash"></span><span>límite aproximado</span><span class="osm">© OpenStreetMap</span>`;
+  const label={ppm2:ALQ()?"Pesos por m² cubierto por mes (mediana)":"USD por m² cubierto (mediana)",med:ALQ()?"Alquiler mensual mediano":"Precio mediano",n:"Casas publicadas",var:"Variación de precio desde el primer relevamiento",vel:"Días hasta darse de baja (mediana)",seg:"Hechos delictivos reportados en medios locales (12 meses)"}[S.metric];
+  const fmtL=v=>S.metric==="vel"?dias(v):S.metric==="var"?(v>0?"+":"")+v.toFixed(1)+"%":S.metric==="n"||SEG?v:usd(v);
+  lg.innerHTML=(vals.length?`<span>${label} · color por ranking</span><span class="num">${fmtL(lo)}</span><span class="ramp" style="background:linear-gradient(90deg,${RAMP.join(",")})"></span><span class="num">${fmtL(hi)}</span>`:(SEG?`<span>${label}: cargando…</span>`:`<span>${label}: sin datos todavía. ${S.metric==="vel"?"Se mide cuando los avisos empiecen a darse de baja, desde el segundo relevamiento.":"Aparece desde el segundo relevamiento."}</span>`))+`<span class="sw nod"></span><span>sin avisos</span><span class="sw dash"></span><span>límite aproximado</span><span class="osm">© OpenStreetMap</span>`;
 }
 function areaFrom(e){return e.target.closest&&e.target.closest(".area")}
 svg.addEventListener("keydown",e=>{const g=areaFrom(e);if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();S.barrio=g.dataset.b;drawMap();drawPanel()}});
@@ -446,6 +473,7 @@ const METRICS={
   med:{dir:1,title:"¿Dónde están las casas más baratas?",note:"Barrios ordenados por precio mediano, de menor a mayor.",empty:"Sin datos.",fmt:v=>usd(v)},
   n:{dir:-1,title:"¿Dónde hay más oferta?",note:"Barrios ordenados por cantidad de casas publicadas.",empty:"Sin datos.",fmt:v=>v+(v===1?" casa":" casas")},
   seg:{dir:-1,title:"Seguridad reportada",note:"Barrios por hechos delictivos publicados en Diario Andino y La Angostura Digital en los últimos 12 meses. Es lo que sale en los medios, no estadística oficial: sin notas no quiere decir sin delitos.",empty:"Cargando noticias…",fmt:v=>v+(v===1?" hecho":" hechos")},
+  vel:{dir:1,title:"¿Dónde se mueven más rápido?",note:"Barrios ordenados por los días que tardaron los avisos en darse de baja (mediana), del más rápido al más lento. Dado de baja no siempre es vendido: también puede ser un aviso pausado o republicado.",empty:"Todavía no hay avisos dados de baja: se miden desde el segundo relevamiento.",fmt:v=>dias(v)},
   var:{dir:1,title:"¿Dónde bajan los precios?",note:"Barrios ordenados por variación del precio desde el primer relevamiento, de la mayor baja a la mayor suba.",empty:"La variación se puede medir a partir del segundo relevamiento.",fmt:v=>(v>0?"+":"")+v.toFixed(1)+"%"}};
 const METRICS_ALQ={
   ppm2:{title:"¿Dónde rinde más el alquiler?",note:"Barrios ordenados por pesos por m² cubierto por mes (mediana), del más barato al más caro. Pocos avisos de alquiler traen los m², así que hay pocos barrios con dato.",empty:"Los avisos de alquiler casi no informan m² cubiertos."},
@@ -466,7 +494,7 @@ function drawPanel(){
     P.classList.add("ranking");
     P.innerHTML=`<div><div class="eyebrow">Toda la Villa · ${ALQ()?"alquiler · ":""}${capped()?"hasta "+usd(budget()):"todo el mercado"}</div><h2>${M.title}</h2></div>
     <p class="note">${rank.length?M.note:M.empty} Tocá un barrio del mapa para ver su ficha.${off.length?` Sin ubicar en el mapa: ${off.map(([b,s])=>esc(b)+" ("+s.n+")").join(", ")}.`:""}</p>
-    <ul class="mini">${rank.map(([b,s])=>`<li><a href="#mapa" data-b="${esc(b)}"><span>${esc(b)}${S.metric==="n"?"":S.metric==="seg"?` <small>· ${s.n} noticia${s.n===1?"":"s"}</small>`:` <small>· ${s.n} casa${s.n===1?"":"s"}</small>`}</span><span class="num">${M.fmt(s[S.metric])}</span></a></li>`).join("")}</ul>
+    <ul class="mini">${rank.map(([b,s])=>`<li><a href="#mapa" data-b="${esc(b)}"><span>${esc(b)}${S.metric==="n"?"":S.metric==="vel"?` <small>· ${s.bajas} de baja</small>`:S.metric==="seg"?` <small>· ${s.n} noticia${s.n===1?"":"s"}</small>`:` <small>· ${s.n} casa${s.n===1?"":"s"}</small>`}</span><span class="num">${M.fmt(s[S.metric])}</span></a></li>`).join("")}</ul>
     <div class="pulse"><div class="risk"><b>A tener en cuenta</b>${GENERAL.risk}</div></div>`;
     P.querySelectorAll("[data-b]").forEach(a=>a.onclick=e=>{e.preventDefault();S.barrio=a.dataset.b;drawMap();drawPanel()});
     return;
@@ -476,12 +504,13 @@ function drawPanel(){
   const q=encodeURIComponent(`"Villa La Angostura" "${name.replace(/ \(.*\)/,"")}"`);
   P.innerHTML=`<button class="backbtn" id="back" type="button" aria-label="Volver al listado de barrios">← Todos los barrios</button><div><div class="eyebrow">Barrio${AREA[name]?` · ${AREA[name].o?"límite oficial (OSM)":"límite aproximado"} · ${distC(AREA[name])}`:" · fuera del mapa"}</div><h2>${esc(name)}</h2></div>
   <div class="stats"><div><b>${s.n}</b><small>${capped()?`de ${s.total} hasta ${k(budget())}`:"casas "+OPW()}</small></div><div><b>${k(s.med)}</b><small>${ALQ()?"alquiler mediano por mes":"precio mediano"}</small></div><div><b>${s.ppm2?fmt(s.ppm2):"–"}</b><small>${M2L()} cub.${ALQ()?" por mes":""}</small></div></div>
+  <p class="note num" style="margin:0">Publicadas hace ${dias(s.dias)} (mediana)${S.dates.length>1?` · ${s.bajas} dada${s.bajas===1?"":"s"} de baja${s.vel!=null?`, tardaron ${dias(s.vel)} (mediana)`:""}`:" · las bajas se cuentan desde el próximo relevamiento"}</p>
   <div><div class="eyebrow">Dispersión de precios</div>${(()=>{const mx=capped()?budget():ALQ()?Math.max(...ps.map(p=>p.price)):Math.min(1500000,Math.max(...ps.map(p=>p.price)));const bl=100;return `<div class="strip">${false?`<b style="position:absolute;left:${bl}%;top:0;bottom:0;border-left:1px dashed var(--glacier)"></b>`:""}${ps.map(p=>`<span style="left:${Math.min(100,p.price/mx*100).toFixed(1)}%;${p.price>budget()?"background:var(--mute)":""}" title="${usd(p.price)}"></span>`).join("")}<i style="left:0%">0</i><i style="left:50%">${k(mx/2)}</i><i style="left:100%">${k(mx)}${mx<Math.max(...ps.map(p=>p.price))?"+":""}</i></div>`})()}</div>
   <div><div class="eyebrow" style="margin-top:8px">Tendencia del precio mediano</div>${spark(s.trend)}</div>
   ${newsBlock(name)}
   <div class="pulse">${B.pulse.plus?`<div class="plus"><b>A favor</b>${esc(B.pulse.plus)}</div>`:""}${B.pulse.info&&!ALQ()?`<div><b>Qué se consigue</b>${esc(B.pulse.info)}</div>`:""}${B.pulse.risk?`<div class="risk"><b>Ojo con</b>${esc(B.pulse.risk)}</div>`:""}
   <p class="note">Notas orientativas armadas a partir de los avisos y del conocimiento general de la zona. Validalas con vecinos e inmobiliarias.</p></div>
-  <div><div class="eyebrow">Casas más baratas</div><ul class="mini">${ps.slice(0,6).map(p=>`<li><a href="${p.links[0]}" target="_blank" rel="noopener"><span>${p.dorm!=null?p.dorm+" dorm.":"Casa"}${p.m2cub?" · "+p.m2cub+" m²":""}${p.m2tot?" · lote "+p.m2tot:""}${tags(p)}</span><span class="num">${usd(p.price)}</span></a></li>`).join("")}</ul></div>
+  <div><div class="eyebrow">Casas más baratas</div><ul class="mini">${ps.slice(0,6).map(p=>`<li><a href="${p.links[0]}" target="_blank" rel="noopener"><span>${isFav(p)?"★ ":""}${p.dorm!=null?p.dorm+" dorm.":"Casa"}${p.m2cub?" · "+p.m2cub+" m²":""}${p.m2tot?" · lote "+p.m2tot:""}${tags(p)}</span><span class="num">${usd(p.price)}</span></a></li>`).join("")}</ul></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn ghost" href="#casas" id="verTodas">Ver las ${s.n} casas</a></div>`;
   P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};
   P.querySelector("#verTodas").onclick=()=>{document.getElementById("fBarrio").value=name;S.pg.casas=1;drawTable()};
@@ -537,11 +566,19 @@ function drawKpis(){
   <div class="kpi"><small>${ALQ()?"Alquiler mediano por mes":"Precio mediano"}</small><b>${usd(median(ps.map(p=>p.price)))}</b><em>mínimo ${usd(Math.min(...ps.map(p=>p.price)))}</em></div>
   <div class="kpi"><small>${ALQ()?"Pesos por m² por mes":"USD por m² cubierto"}</small><b>${fmt(median(ps.map(p=>p.ppm2)))}</b><em>${ALQ()?ps.filter(p=>p.ppm2).length+" avisos informan m²":"mediana de la Villa"}</em></div>
   <div class="kpi"><small>${ALQ()?"Barrio más barato":"Más m² por dólar"}</small><b style="font-family:var(--display)">${best?esc(best[0]):"–"}</b><em>${best?(ALQ()?usd(best[1].med)+" mediana · "+best[1].n+" casas":fmt(best[1].ppm2)+" "+M2L()):""}</em></div>
-  <div class="kpi"><small>Cambiaron de precio</small><b>${moved}</b><em>${S.dates.length>1?"desde el primer relevamiento":"se mide desde el próximo relevamiento"}</em></div>`;
+  <div class="kpi"><small>Cambiaron de precio</small><b>${moved}</b><em>${S.dates.length>1?`${(S.goneView||[]).length} dadas de baja desde el ${dfmt(S.dates[0])}`:"bajas y cambios se miden desde el próximo relevamiento"}</em></div>`;
   const sc=S.lastSnap?.scope?.z;
   document.getElementById("meta").textContent=`${S.props.length} casas ${OPW()} en Villa La Angostura · ${capped()?S.props.filter(p=>p.price<=budget()).length+" hasta "+usd(budget())+" · ":""}${(()=>{const u=new Set(S.props.flatMap(p=>p.srcs));const loc=[...u].filter(c=>!PORTALES.includes(c)).length;return "Argenprop, Zonaprop"+(loc?` y ${loc} inmobiliaria${loc===1?"":"s"} local${loc===1?"":"es"}`:"")})()} · actualizado ${dfmt(S.last)}${ALQ()?" · pesos por mes":""}`;
 }
 
+/* ---------- Favoritas y notas: quedan en este navegador ---------- */
+const FAV=(()=>{try{return JSON.parse(localStorage.getItem("radar.favs")||"{}")}catch(e){return {}}})();
+const saveFav=()=>{try{localStorage.setItem("radar.favs",JSON.stringify(FAV))}catch(e){}};
+const favOf=p=>p.keys.map(k=>FAV[k]).find(Boolean);
+const isFav=p=>!!favOf(p)?.fav;
+const noteOf=p=>favOf(p)?.note||"";
+function setFav(p,patch){const k=p.keys.find(k=>FAV[k])||p.keys[0];const v={...(FAV[k]||{}),...patch,t:Date.now()};if(!v.fav&&!v.note)delete FAV[k];else FAV[k]=v;saveFav()}
+S.noteOpen=null;
 /* ---------- Tabla ---------- */
 /* ---------- Paginado ---------- */
 S.pg={casas:1,news:1};
@@ -561,16 +598,22 @@ function drawTable(){
   const fb=document.getElementById("fBarrio"),cur=fb.value;
   const names=[...new Set(S.props.map(p=>p.barrio))].sort();
   fb.innerHTML=`<option value="">Todos</option>`+names.map(n=>`<option${n===cur?" selected":""}>${esc(n)}</option>`).join("");
-  const dmin=+document.getElementById("fDorm").value,max=budget(),src=document.getElementById("fSrc").value;
-  let rows=S.props.filter(p=>(!fb.value||p.barrio===fb.value)&&(!dmin||(p.dorm??0)>=dmin)&&p.price<=max&&(!src||p.srcs.includes(src)));
+  const dmin=+document.getElementById("fDorm").value,max=budget(),src=document.getElementById("fSrc").value,est=document.getElementById("fEstado").value;
+  const base=est==="baja"?(S.gone||[]):est==="fav"?[...S.props,...(S.gone||[])].filter(p=>isFav(p)||noteOf(p)):S.props;
+  let rows=base.filter(p=>(!fb.value||p.barrio===fb.value)&&(!dmin||(p.dorm??0)>=dmin)&&p.price<=max&&(!src||p.srcs.includes(src)));
   const {k:key,d}=S.sort;
   rows.sort((a,b)=>{const x=a[key],y=b[key];if(x==null)return 1;if(y==null)return -1;return (x>y?1:x<y?-1:0)*d});
   const [a0,a1]=pager("pgCasas","casas",rows.length,25,drawTable,"casasNote");
-  document.querySelector("#tbl tbody").innerHTML=rows.slice(a0,a1).map(p=>`<tr><td>${esc(p.barrio)}${tags(p)}</td><td class="r num">${usd(p.price)}</td><td class="r num">${p.m2cub??"–"}</td><td class="r num">${p.ppm2?fmt(p.ppm2):"–"}</td><td class="r num">${p.m2tot??"–"}</td><td class="r num">${p.dorm??"–"}</td><td class="r num">${p.delta?(p.delta>0?"+":"−")+fmt(Math.abs(p.delta)):"–"}</td><td>${dfmt(p.first)}</td><td>${p.links.map((l,i)=>`<a href="${l}" target="_blank" rel="noopener">${esc(srcName(p.srcs[i]))}</a>`).join(" · ")}</td></tr>`).join("");
+  const gone=new Set(S.gone||[]);
+  document.querySelector("#tbl tbody").innerHTML=rows.slice(a0,a1).map((p,i)=>`<tr${gone.has(p)?' class="gone"':""}><td><button class="star" data-i="${i}" aria-pressed="${isFav(p)}" aria-label="${isFav(p)?"Quitar de":"Agregar a"} favoritas" title="Favorita">★</button>${esc(p.barrio)}${tags(p)}${gone.has(p)?`<span class="tag" title="Último visto el ${dfmt(p.lastSeen)}">de baja</span>`:""}<button class="notebtn" data-n="${i}">${noteOf(p)?"nota":"+ nota"}</button>${noteOf(p)&&S.noteOpen!==p.keys[0]?`<span class="notetxt">${esc(noteOf(p))}</span>`:""}</td><td class="r num">${usd(p.price)}</td><td class="r num">${p.m2cub??"–"}</td><td class="r num">${p.ppm2?fmt(p.ppm2):"–"}</td><td class="r num">${p.m2tot??"–"}</td><td class="r num">${p.dorm??"–"}</td><td class="r num">${p.delta?(p.delta>0?"+":"−")+fmt(Math.abs(p.delta)):"–"}</td><td class="r num" title="${p.pub?(p.pubEst?"Estimada por el número de aviso: ":"Publicada el ")+dfmt(p.pub)+" "+p.pub.slice(0,4):"Vista por primera vez el "+dfmt(p.first)}">${p.pub&&p.pubEst?"~":""}${dias(p.days)}</td><td>${p.links.map((l,i)=>`<a href="${l}" target="_blank" rel="noopener">${esc(srcName(p.srcs[i]))}</a>`).join(" · ")}</td></tr>${S.noteOpen===p.keys[0]?`<tr class="noterow"><td colspan="9"><textarea data-t="${i}" placeholder="Tus notas sobre esta casa: visita, contacto, qué preguntar… Se guardan solo en este navegador.">${esc(noteOf(p))}</textarea></td></tr>`:""}`).join("");
+  const pg=rows.slice(a0,a1),tb=document.querySelector("#tbl tbody");
+  tb.querySelectorAll(".star").forEach(b=>b.onclick=()=>{const p=pg[+b.dataset.i];setFav(p,{fav:!isFav(p)});drawTable()});
+  tb.querySelectorAll(".notebtn").forEach(b=>b.onclick=()=>{const p=pg[+b.dataset.n];S.noteOpen=S.noteOpen===p.keys[0]?null:p.keys[0];drawTable();tb.querySelector("textarea")?.focus()});
+  tb.querySelectorAll("textarea").forEach(t=>t.oninput=()=>setFav(pg[+t.dataset.t],{note:t.value.trim()}));
   const tc=S.lastSnap?.tc?.oficial;
-  document.getElementById("casasNote").textContent=`${rows.length} casas ${OPW()}. Las que publican varios sitios a la vez se muestran una sola vez (×2, ×3…). Tocá un encabezado para ordenar.`+(ALQ()?` Alquileres permanentes, en pesos por mes; los temporarios quedan afuera. Los publicados en dólares (marcados US$) se pasan a pesos con el dólar oficial del ${dfmt(S.last)}${tc?" ($ "+fmt(tc)+")":""}.`:"");
+  document.getElementById("casasNote").textContent=(est==="baja"?`${rows.length} casas dadas de baja${S.dates.length<2?": se registran desde el segundo relevamiento":""}. Dada de baja no siempre es vendida.`:est==="fav"?`${rows.length} favoritas. Marcalas con la ★; quedan guardadas en este navegador, junto con tus notas.`:`${rows.length} casas ${OPW()}.`)+` Las que publican varios sitios a la vez se muestran una sola vez (×2, ×3…). Tocá un encabezado para ordenar.`+(ALQ()?` Alquileres permanentes, en pesos por mes; los temporarios quedan afuera. Los publicados en dólares (marcados US$) se pasan a pesos con el dólar oficial del ${dfmt(S.last)}${tc?" ($ "+fmt(tc)+")":""}.`:"");
 }
-["fBarrio","fDorm","fSrc"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{S.pg.casas=1;drawTable()}));
+["fBarrio","fDorm","fSrc","fEstado"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{S.pg.casas=1;drawTable()}));
 document.querySelectorAll("#tbl th[data-k]").forEach(th=>th.onclick=()=>{S.sort={k:th.dataset.k,d:S.sort.k===th.dataset.k?-S.sort.d:1};S.pg.casas=1;drawTable()});
 
 /* ---------- Importar relevamiento ---------- */

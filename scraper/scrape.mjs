@@ -7,6 +7,7 @@ import path from "node:path";
 import { relevar, normalizar, sourcesMeta } from "./locales.mjs";
 import * as noticias from "./noticias.mjs";
 import * as alquileres from "./alquileres.mjs";
+import { calibrar, estimar } from "./publicacion.mjs";
 
 // Se releva todo el mercado; el presupuesto se filtra en la app.
 const OUT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../data");
@@ -106,6 +107,8 @@ for (const [name, fn] of [["Argenprop", argenprop], ["Zonaprop", zonaprop]]) {
   catch (e) { console.error(`${name} falló:`, e.message); }
 }
 const date = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
+// fecha de publicación de Zonaprop: se recalibra con unos avisos y se estima para todos
+try { console.log(`Zonaprop: ${await calibrar(page, rows.filter(r => r[0] === "z").map(r => r[1]), date)} avisos con fecha leída`); } catch (e) { console.error("Calibración falló:", e.message); }
 // Inmobiliarias locales: guarda data/locales/<fuente>-<fecha>.json y suma sus casas
 try {
   await relevar(page, date);
@@ -128,7 +131,8 @@ try {
 await ctx.close();
 fs.mkdirSync(OUT_DIR, { recursive: true });
 const file = path.join(OUT_DIR, `snapshot-${date}.json`);
-fs.writeFileSync(file, JSON.stringify({ date, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug"], rows, sources: sourcesMeta() }));
+const conPub = rows.map(r => r[0] === "z" ? [...r, estimar(r[1]), 1] : [...r, null, null]);
+fs.writeFileSync(file, JSON.stringify({ date, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "pub", "pubEst"], rows: conPub, sources: sourcesMeta() }));
 // índice de relevamientos publicados que lee la app
 const idxFile = path.join(OUT_DIR, "snapshots.json");
 const idx = fs.existsSync(idxFile) ? JSON.parse(fs.readFileSync(idxFile, "utf8")) : { files: [] };

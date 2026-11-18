@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { barrioTexto, barrioGeo, enVLA } from "./locales.mjs";
+import { estimar } from "./publicacion.mjs";
 
 const DIR = path.dirname(new URL(import.meta.url).pathname);
 const DATA = path.resolve(DIR, "../data");
@@ -163,7 +164,7 @@ export function normalizar(fecha) {
     cub = num(cub); tot = num(tot);
     if (cub && (cub < 20 || cub > 1500)) cub = null;
     if (tot && (tot < 50 || tot > 300000)) tot = null;
-    filas.push([src, id, price, barrio || "Sin barrio", cub, tot, dorm ? Math.round(dorm) : null, slug, usd]);
+    filas.push([src, id, price, barrio || "Sin barrio", cub, tot, dorm ? Math.round(dorm) : null, slug, usd, src === "z" ? estimar(id) : null, src === "z" ? 1 : null]);
   };
   for (const [id, mon, monto, dorm, addr, f, desc, href] of rd("argenprop")) {
     const cub = feat(f, /(\d+)\s*m² cub/), tot = feat(f, /(\d+)\s*m² tot/);
@@ -184,7 +185,7 @@ export function normalizar(fecha) {
     push("am", slug, m ? num(m[1]) : null, "ARS", barrioTexto(texto, slug), (texto.match(/Cubiertos:\s*([\d.]+)/) || [])[1], (texto.match(/de lote:\s*([\d.]+)/) || [])[1],
       num((texto.match(/Habitaciones:\s*(\d+)/) || [])[1]), slug, texto);
   }
-  const out = { date: fecha, op: "alquiler", moneda: "ARS", tc, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "usd"], rows: filas, sources: SOURCES };
+  const out = { date: fecha, op: "alquiler", moneda: "ARS", tc, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "usd", "pub", "pubEst"], rows: filas, sources: SOURCES };
   const file = path.join(DATA, `alquiler-${fecha}.json`);
   fs.writeFileSync(file, JSON.stringify(out));
   const idxFile = path.join(DATA, "alquileres.json");
