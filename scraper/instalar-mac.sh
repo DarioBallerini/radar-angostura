@@ -1,5 +1,5 @@
 #!/bin/bash
-# Programa el relevamiento semanal en esta Mac (domingos 10:00) con launchd.
+# Programa el relevamiento semanal en esta Mac (martes 11:00) con launchd.
 # Antes: npm install && npx playwright install chromium, y ~/.radar-angostura.env con TELEGRAM_TOKEN, TELEGRAM_CHAT y TOPE_USD.
 # Para desinstalar: launchctl unload ~/Library/LaunchAgents/ar.radar-angostura.plist && rm ~/Library/LaunchAgents/ar.radar-angostura.plist
 set -eu
@@ -13,11 +13,11 @@ cat > "$PL" <<PLIST
 <plist version="1.0"><dict>
   <key>Label</key><string>ar.radar-angostura</string>
   <key>ProgramArguments</key><array><string>/bin/bash</string><string>$DIR/actualizar.sh</string></array>
-  <key>StartCalendarInterval</key><dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
+  <key>StartCalendarInterval</key><dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>11</integer><key>Minute</key><integer>0</integer></dict>
   <key>StandardOutPath</key><string>$HOME/Library/Logs/radar-angostura.log</string>
   <key>StandardErrorPath</key><string>$HOME/Library/Logs/radar-angostura.log</string>
 </dict></plist>
 PLIST
 launchctl unload "$PL" 2>/dev/null || true
 launchctl load "$PL"
-echo "Listo: corre los domingos a las 10:00 (si la Mac está dormida, al despertarse). Log: ~/Library/Logs/radar-angostura.log"
+echo "Listo: corre los martes a las 11:00 (si la Mac está dormida, al despertarse). Log: ~/Library/Logs/radar-angostura.log"

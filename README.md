@@ -20,7 +20,7 @@ cd .. && git add data && git commit -m "Relevamiento $(date +%F)" && git push
 ## Actualización automática y alertas
 
 - `scraper/actualizar.sh` corre el relevamiento, manda las alertas y hace push de `data/` (GitHub Pages se actualiza solo).
-- `scraper/instalar-mac.sh` lo programa con launchd los domingos a las 10:00. Log en `~/Library/Logs/radar-angostura.log`.
+- `scraper/instalar-mac.sh` lo programa con launchd los martes a las 11:00. Log en `~/Library/Logs/radar-angostura.log`.
 - `scraper/alertas.mjs` compara los dos últimos relevamientos y avisa por Telegram las casas nuevas hasta el tope y las bajas de precio. Configuración en `~/.radar-angostura.env` (fuera del repo): `TELEGRAM_TOKEN`, `TELEGRAM_CHAT`, `TOPE_USD` y, opcional, `TOPE_ALQ`.
 
 ## Fuentes
