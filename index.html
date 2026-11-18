@@ -158,6 +158,17 @@ tr:hover td{background:var(--deep)}
 .out small{color:var(--mute);font-size:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<script>
+/* Vista previa de tipografías: ?fuente=1..4 (no cambia nada si no se pasa el parámetro) */
+(()=>{const F={
+ "1":["Fraunces:opsz,wght@9..144,600;9..144,800&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600","Fraunces","Work Sans","IBM Plex Mono"],
+ "2":["Instrument+Serif&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;600","Instrument Serif","Instrument Sans","Geist Mono"],
+ "3":["DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500","DM Serif Display","DM Sans","DM Mono"],
+ "4":["Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600","Plus Jakarta Sans","Plus Jakarta Sans","IBM Plex Mono"]};
+ const f=F[new URLSearchParams(location.search).get("fuente")];if(!f)return;
+ document.write(`<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${f[0]}&display=swap"><style>:root{--display:"${f[1]}",serif;--body:"${f[2]}",sans-serif;--mono:"${f[3]}",monospace}${f[1].includes("Instrument Serif")||f[1].includes("DM Serif")?".brand h1,h2,h3{font-weight:400!important;letter-spacing:0}":""}</style>`);
+})();
+</script>
 </head>
 <body>
 <header>
@@ -390,7 +401,7 @@ function drawMap(){
   <pattern id="nod" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#efeadf"/><line x1="0" y1="0" x2="0" y2="6" stroke="#d8d0bd" stroke-width="2"/></pattern></defs>
   <rect x="-2000" y="-2000" width="5000" height="5000" fill="#e8e3d3"/>
   <rect x="-2000" y="-2000" width="5000" height="5000" fill="url(#topo)"/>`;
-  if(!MAP){svg.innerHTML=g+`<text x="500" y="370" text-anchor="middle" fill="#7d8a84" font-family="JetBrains Mono" font-size="14">Cargando mapa…</text>`;return}
+  if(!MAP){svg.innerHTML=g+`<text x="500" y="370" text-anchor="middle" fill="#7d8a84" style="font-family:var(--mono)" font-size="14">Cargando mapa…</text>`;return}
   g+=`<g class="base">`;
   for(const l of MAP.lakes)g+=`<path d="${l.d}" fill="#a9d0de" stroke="#6fa8bd" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
   g+=`<path d="${MAP.wD}" fill="none" stroke="#7fb1c4" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
@@ -416,14 +427,14 @@ function drawMap(){
     const [x,y]=a.cp;const big=a.ha>=40||sel;
     if(!s&&!big&&!sel)continue;
     const fs=(s?11.5:10)*zs;
-    g+=`<g class="lbl" pointer-events="none"><text x="${x}" y="${y}" text-anchor="middle" font-size="${fs}" font-family="Figtree" font-weight="${s?700:500}" fill="${s?"#1c2d2b":"#7d8a84"}" paint-order="stroke" stroke="#fffdf8" stroke-width="${3*zs}" stroke-linejoin="round">${esc(a.n)}</text>${s?`<text x="${x}" y="${y+fs*1.15}" text-anchor="middle" font-size="${10.5*zs}" font-family="JetBrains Mono" font-weight="600" fill="#1c2d2b" paint-order="stroke" stroke="#fffdf8" stroke-width="${3*zs}">${val}</text>`:""}</g>`;
+    g+=`<g class="lbl" pointer-events="none"><text x="${x}" y="${y}" text-anchor="middle" font-size="${fs}" style="font-family:var(--body)" font-weight="${s?700:500}" fill="${s?"#1c2d2b":"#7d8a84"}" paint-order="stroke" stroke="#fffdf8" stroke-width="${3*zs}" stroke-linejoin="round">${esc(a.n)}</text>${s?`<text x="${x}" y="${y+fs*1.15}" text-anchor="middle" font-size="${10.5*zs}" style="font-family:var(--mono)" font-weight="600" fill="#1c2d2b" paint-order="stroke" stroke="#fffdf8" stroke-width="${3*zs}">${val}</text>`:""}</g>`;
   }
-  const lab=(lo3,la3,t,s=13,c="#2c6f88")=>{const [x,y]=px(lo3,la3);return `<text x="${x}" y="${y}" fill="${c}" font-size="${s*zs}" font-family="Bricolage Grotesque" font-style="italic" text-anchor="middle" pointer-events="none">${t}</text>`};
+  const lab=(lo3,la3,t,s=13,c="#2c6f88")=>{const [x,y]=px(lo3,la3);return `<text x="${x}" y="${y}" fill="${c}" font-size="${s*zs}" style="font-family:var(--display)" font-style="italic" text-anchor="middle" pointer-events="none">${t}</text>`};
   g+=lab(-71.628,-40.789,"Lago Nahuel Huapi",20)+lab(-71.688,-40.744,"Lago Correntoso",14)+lab(-71.686,-40.777,"Bahía Brava",11)+lab(-71.640,-40.792,"Bahía Las Balsas",11)+lab(-71.585,-40.770,"Ruta 40 → Bariloche",11,"#8a5a32")+lab(-71.69,-40.728,"Ruta 40 · 7 Lagos ↑",11,"#8a5a32");
   // escala 1 km
   const [sx0]=px(-71.60,-40.79),[sx1]=px(-71.60+1/(111.32*Math.cos(40.76*Math.PI/180)),-40.79);
   const bx=vb.x+vb.w-(sx1-sx0)-18*zs,by=vb.y+vb.h-34*zs;
-  g+=`<g pointer-events="none"><path d="M${bx} ${by} h${sx1-sx0}" stroke="#6c7a73" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${bx+(sx1-sx0)/2}" y="${by-5*zs}" text-anchor="middle" font-size="${10*zs}" font-family="JetBrains Mono" fill="#6c7a73">1 km</text></g>`;
+  g+=`<g pointer-events="none"><path d="M${bx} ${by} h${sx1-sx0}" stroke="#6c7a73" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${bx+(sx1-sx0)/2}" y="${by-5*zs}" text-anchor="middle" font-size="${10*zs}" style="font-family:var(--mono)" fill="#6c7a73">1 km</text></g>`;
   svg.innerHTML=g;
   const lg=document.getElementById("legend");
   const label={ppm2:ALQ()?"Pesos por m² cubierto por mes (mediana)":"USD por m² cubierto (mediana)",med:ALQ()?"Alquiler mensual mediano":"Precio mediano",n:"Casas publicadas",var:"Variación de precio desde el primer relevamiento",vel:"Días hasta darse de baja (mediana)",seg:"Hechos delictivos reportados en medios locales (12 meses)"}[S.metric];
