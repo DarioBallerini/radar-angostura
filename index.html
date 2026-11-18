@@ -4,19 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radar Angostura</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1e6a86">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* Mundo único: lago de noche, cartografía topográfica. Mapa al centro, panel de barrio al costado. */
-  --ink:#0c1a1d; --deep:#122529; --raise:#183136; --line:#2a454b;
-  --fog:#d7e3e0; --mute:#86a19c; --glacier:#8fd6ca; --arrayan:#e08a50;
-  --good:#9bd27f; --warn:#e8bb55; --bad:#ef7a6a;
+  /* Tema claro inspirado en la Villa: papel de arena, azul del Nahuel Huapi, verde de bosque de coihues y canela de arrayán. */
+  --ink:#f3efe6; --deep:#fffdf8; --raise:#ebe5d8; --line:#d8d0bf;
+  --fog:#1c2d2b; --mute:#5e6d66; --glacier:#1e6a86; --arrayan:#b4552c; --bosque:#2f5d3a;
+  --good:#3d7a3f; --warn:#a97c12; --bad:#b23f2c;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Figtree",ui-sans-serif,system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  color-scheme:dark;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -26,8 +30,9 @@ button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--glacier);outline-offset:2px}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px;padding:20px 24px 12px;border-bottom:1px solid var(--line)}
-.brand h1{font-size:30px;font-weight:800;line-height:1}
+header{position:relative;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px;padding:20px 24px 14px;background:var(--deep);border-bottom:1px solid var(--line)}
+header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:linear-gradient(90deg,var(--glacier) 0 45%,var(--bosque) 45% 82%,var(--arrayan) 82%)}
+.brand h1{font-size:30px;font-weight:800;line-height:1;color:var(--bosque)}
 .brand h1 span{color:var(--glacier)}
 .brand p{margin:6px 0 0;color:var(--mute);font-size:13px}
 nav{display:flex;gap:4px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:4px}
@@ -42,34 +47,34 @@ main{padding:16px 24px 40px}
 .kpi em{font-style:normal;color:var(--glacier);font-size:13px}
 .split{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:14px;align-items:start}
 @media (max-width:900px){.split{grid-template-columns:1fr}}
-.mapbox{position:relative;background:#0a1619;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mapbox{position:relative;background:#e8e3d3;border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .mapbox svg{display:block;width:100%;height:auto;aspect-ratio:1000/740;touch-action:none;cursor:grab}
 .mapbox svg.drag{cursor:grabbing}
 .maptools{position:absolute;left:12px;top:12px;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 24px)}
-.chip{border:1px solid var(--line);background:rgba(12,26,29,.85);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--mute)}
+.chip{border:1px solid var(--line);background:rgba(255,253,248,.92);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;color:var(--mute)}
 .chip[aria-pressed="true"]{border-color:var(--glacier);color:var(--glacier)}
 .zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
-.zoom button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:rgba(12,26,29,.85);cursor:pointer;font-size:18px}
+.zoom button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:rgba(255,253,248,.92);cursor:pointer;font-size:18px}
 .opsw{margin-left:auto;display:flex;gap:2px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:3px}
 .opsw button{border:0;background:none;color:var(--mute);font:600 13px var(--body,inherit);padding:6px 14px;border-radius:999px;cursor:pointer}
 .opsw button[aria-pressed="true"]{background:var(--arrayan);color:var(--ink)}
 .pmax{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
 .pmax input{width:130px;background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:600 14px var(--mono);color:var(--fog)}
 .pmax button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:12px;text-decoration:underline}
-.legend{position:absolute;left:0;bottom:0;right:0;padding:8px 12px;background:linear-gradient(0deg,rgba(10,22,25,.95),rgba(10,22,25,.6));display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.legend{position:absolute;left:0;bottom:0;right:0;padding:8px 12px;background:linear-gradient(0deg,rgba(255,253,248,.96),rgba(255,253,248,.72));display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mute);flex-wrap:wrap}
 .legend .ramp{width:160px;height:8px;border-radius:4px}
 .note{font-size:12px;color:var(--mute)}
-.area{cursor:pointer;stroke:#0c1a1d;stroke-width:1.3;transition:fill-opacity .15s}
-.area.approx{stroke:#5d7c7d;stroke-dasharray:4 3}
+.area{cursor:pointer;stroke:#fffdf8;stroke-width:1.3;transition:fill-opacity .15s}
+.area.approx{stroke:#8a9a92;stroke-dasharray:4 3}
 .area:hover{fill-opacity:1;stroke:var(--fog);stroke-width:2;stroke-dasharray:none}
-.area:focus{outline:none;stroke:#fff;stroke-width:2}
-.maptip{position:absolute;pointer-events:none;background:rgba(10,22,25,.95);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px;display:grid;gap:2px;max-width:240px;z-index:3}
+.area:focus{outline:none;stroke:#1c2d2b;stroke-width:2}
+.maptip{position:absolute;pointer-events:none;background:rgba(255,253,248,.96);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px;display:grid;gap:2px;max-width:240px;z-index:3}
 .maptip b{font-family:var(--display);font-size:14px}.maptip small{color:var(--mute)}
 .scalebar{position:absolute;left:18px;top:60px;height:6px;border:2px solid var(--mute);border-top:0;pointer-events:none}
 .scalebar::after{content:attr(data-km);position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font:11px var(--mono);color:var(--mute)}
 .legend .sw{width:14px;height:10px;border-radius:2px;display:inline-block}
-.legend .sw.nod{background:repeating-linear-gradient(45deg,#132a2e 0 3px,#1e3a3f 3px 5px)}
-.legend .sw.dash{border:1.5px dashed #5d7c7d}
+.legend .sw.nod{background:repeating-linear-gradient(45deg,#efeadf 0 3px,#d8d0bd 3px 5px)}
+.legend .sw.dash{border:1.5px dashed #8a9a92}
 .legend .osm{margin-left:auto;font-size:11px}
 .panel{background:var(--deep);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:16px}
 .panel h2{font-size:26px}
@@ -95,9 +100,9 @@ main{padding:16px 24px 40px}
 .mini li a:hover{background:var(--line)}
 .mini small{color:var(--mute)}
 .tag{display:inline-block;font:600 11px var(--mono);padding:1px 6px;border-radius:4px;background:var(--line);color:var(--fog);margin-left:4px}
-.tag.down{background:rgba(155,210,127,.18);color:var(--good)}
-.tag.up{background:rgba(239,122,106,.18);color:var(--bad)}
-.tag.new{background:rgba(143,214,202,.18);color:var(--glacier)}
+.tag.down{background:rgba(61,122,63,.14);color:var(--good)}
+.tag.up{background:rgba(178,63,44,.13);color:var(--bad)}
+.tag.new{background:rgba(30,106,134,.12);color:var(--glacier)}
 .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--glacier);color:var(--glacier);background:transparent;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600;text-decoration:none}
 .btn.solid{background:var(--glacier);color:var(--ink)}
 .btn.ghost{border-color:var(--line);color:var(--mute)}
@@ -105,11 +110,11 @@ main{padding:16px 24px 40px}
 .field{display:grid;gap:4px;font-size:12px;color:var(--mute)}
 .field input,.field select{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:0;color:var(--fog);font:inherit;font-size:14px}
 .field select{appearance:none;-webkit-appearance:none;padding-right:36px;min-width:150px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2386a19c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.field select:hover,.field input:hover{border-color:#3d5d64}.field select:focus-visible,.field input:focus-visible{outline:2px solid var(--glacier);outline-offset:1px}
+.field select:hover,.field input:hover{border-color:#a99f8a}.field select:focus-visible,.field input:focus-visible{outline:2px solid var(--glacier);outline-offset:1px}
 .svc{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:13px;margin-top:8px}.svc dt{color:var(--mute)}.svc dd{margin:0}
-.svc .st{font:600 11px var(--mono);padding:1px 6px;border-radius:4px;margin-right:6px;background:var(--line)}.svc .si{background:rgba(155,210,127,.18);color:var(--good)}.svc .parcial{background:rgba(214,178,92,.18);color:#d6b25c}.svc .no{background:rgba(239,122,106,.18);color:var(--bad)}
+.svc .st{font:600 11px var(--mono);padding:1px 6px;border-radius:4px;margin-right:6px;background:var(--line)}.svc .si{background:rgba(61,122,63,.14);color:var(--good)}.svc .parcial{background:rgba(169,124,18,.14);color:#8a6510}.svc .no{background:rgba(178,63,44,.13);color:var(--bad)}
 .svc a{color:var(--mute)}
-.star{background:none;border:0;cursor:pointer;font-size:16px;line-height:1;color:var(--line);padding:0 6px 0 0;vertical-align:-1px}.star[aria-pressed="true"]{color:#e8c25a}
+.star{background:none;border:0;cursor:pointer;font-size:16px;line-height:1;color:var(--line);padding:0 6px 0 0;vertical-align:-1px}.star[aria-pressed="true"]{color:#d39b16}
 .notebtn{background:none;border:0;cursor:pointer;color:var(--mute);font-size:12px;text-decoration:underline;padding:0;margin-left:6px}
 .noterow td{background:var(--deep);padding:8px 12px}.noterow textarea{width:100%;min-height:54px;background:var(--ink);color:var(--fog);border:1px solid var(--line);border-radius:8px;padding:8px;font:14px inherit;resize:vertical}
 .notetxt{display:block;color:var(--mute);font-size:12px;margin-top:3px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -127,7 +132,7 @@ tr.gone td{color:var(--mute)}
 .nlist li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:10px 14px;background:var(--deep);border:1px solid var(--line);border-radius:10px}
 .nlist a{color:var(--fog);text-decoration:none;font-weight:600;line-height:1.35}.nlist a:hover{color:var(--glacier)}
 .nlist small{display:block;color:var(--mute);font-size:12px;margin-top:3px}
-.dot{width:10px;height:10px;border-radius:50%;margin-top:5px;background:var(--mute)}.dot.pos{background:var(--good)}.dot.neg{background:var(--warn)}.dot.del{background:var(--bad);box-shadow:0 0 0 3px rgba(239,122,106,.22)}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:5px;background:var(--mute)}.dot.pos{background:var(--good)}.dot.neg{background:var(--warn)}.dot.del{background:var(--bad);box-shadow:0 0 0 3px rgba(178,63,44,.2)}
 .ntab{width:100%;min-width:0;font-size:13px}.ntab td,.ntab th{padding:6px 4px}.ntab tr[data-b]{cursor:pointer}.ntab tr[data-b]:hover td{color:var(--glacier)}
 .nkey{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);align-items:center}.nkey span{display:inline-flex;gap:6px;align-items:center}.nkey .dot{margin:0}
 .mini .dot{display:inline-block;margin:0 6px 0 0;vertical-align:1px}
@@ -370,8 +375,8 @@ const toD=(rings,close=true)=>rings.map(r=>"M"+r.map(([lo,la])=>px(lo,la).map(v=
   m.rD=toD(m.r,false);m.RD=toD(m.R,false);m.wD=toD(m.w,false);
   MAP=m;drawMap();drawPanel();setVB()}catch(e){console.error(e)}})();
 const poly=pts=>pts.map(([lo,la])=>px(lo,la).map(v=>v.toFixed(1)).join(",")).join(" ");
-const RAMP=["#1f4f57","#2f7a72","#7fb48a","#d6b25c","#e08a50","#d1563b"];
-function colorFor(t){if(t==null||isNaN(t))return "#3a5257";t=Math.max(0,Math.min(1,t));const i=t*(RAMP.length-1),a=Math.floor(i),f=i-a;const c1=RAMP[a],c2=RAMP[Math.min(a+1,RAMP.length-1)];const h=s=>[1,3,5].map(j=>parseInt(s.slice(j,j+2),16));const x=h(c1),y=h(c2);return "rgb("+x.map((v,j)=>Math.round(v+(y[j]-v)*f)).join(",")+")"}
+const RAMP=["#2b6f8c","#4e9a93","#93bf86","#e2c36b","#d98945","#b4452c"];
+function colorFor(t){if(t==null||isNaN(t))return "#d9d3c4";t=Math.max(0,Math.min(1,t));const i=t*(RAMP.length-1),a=Math.floor(i),f=i-a;const c1=RAMP[a],c2=RAMP[Math.min(a+1,RAMP.length-1)];const h=s=>[1,3,5].map(j=>parseInt(s.slice(j,j+2),16));const x=h(c1),y=h(c2);return "rgb("+x.map((v,j)=>Math.round(v+(y[j]-v)*f)).join(",")+")"}
 function drawMap(){
   const st=barrioStats();S.stats=st;
   const SEG=S.metric==="seg";
@@ -380,44 +385,44 @@ function drawMap(){
   const lo=vals.length?Math.min(...vals):0,hi=vals.length?Math.max(...vals):0;
   const sorted=[...vals].sort((x,y)=>x-y);
   const norm=v=>v==null||isNaN(v)?null:(sorted.length<2?.5:sorted.filter(x=>x<v).length/(sorted.length-1));
-  let g=`<defs><pattern id="topo" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M0 20 Q10 12 20 20 T40 20" fill="none" stroke="#132629" stroke-width="1"/></pattern>
-  <pattern id="nod" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#132a2e"/><line x1="0" y1="0" x2="0" y2="6" stroke="#1e3a3f" stroke-width="2"/></pattern></defs>
-  <rect x="-2000" y="-2000" width="5000" height="5000" fill="#172321"/>
+  let g=`<defs><pattern id="topo" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M0 20 Q10 12 20 20 T40 20" fill="none" stroke="#ddd6c3" stroke-width="1"/></pattern>
+  <pattern id="nod" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#efeadf"/><line x1="0" y1="0" x2="0" y2="6" stroke="#d8d0bd" stroke-width="2"/></pattern></defs>
+  <rect x="-2000" y="-2000" width="5000" height="5000" fill="#e8e3d3"/>
   <rect x="-2000" y="-2000" width="5000" height="5000" fill="url(#topo)"/>`;
-  if(!MAP){svg.innerHTML=g+`<text x="500" y="370" text-anchor="middle" fill="#4f6d70" font-family="JetBrains Mono" font-size="14">Cargando mapa…</text>`;return}
+  if(!MAP){svg.innerHTML=g+`<text x="500" y="370" text-anchor="middle" fill="#7d8a84" font-family="JetBrains Mono" font-size="14">Cargando mapa…</text>`;return}
   g+=`<g class="base">`;
-  for(const l of MAP.lakes)g+=`<path d="${l.d}" fill="#0a3d50" stroke="#3a8291" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
-  g+=`<path d="${MAP.wD}" fill="none" stroke="#22566a" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
-  g+=`<path d="${MAP.rD}" fill="none" stroke="#1f3a3e" stroke-width=".7" vector-effect="non-scaling-stroke"/></g>`;
+  for(const l of MAP.lakes)g+=`<path d="${l.d}" fill="#a9d0de" stroke="#6fa8bd" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+  g+=`<path d="${MAP.wD}" fill="none" stroke="#7fb1c4" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+  g+=`<path d="${MAP.rD}" fill="none" stroke="#cfc6b1" stroke-width=".7" vector-effect="non-scaling-stroke"/></g>`;
   // barrios
   const lbls=[];
   for(const a of MAP.areas){
     const s=st[a.n];const v=getV(a.n);
     const has=SEG?v!=null:s&&!((S.metric==="var"||S.metric==="vel")&&(v==null||isNaN(v)));
-    const fill=SEG?(has?colorFor(norm(v)):"#3a5257"):!s?"url(#nod)":has?colorFor(norm(v)):"#3a5257";
+    const fill=SEG?(has?colorFor(norm(v)):"#d9d3c4"):!s?"url(#nod)":has?colorFor(norm(v)):"#d9d3c4";
     const sel=S.barrio===a.n?" sel":"";
     g+=`<path class="area${sel}${a.o?"":" approx"}" data-b="${esc(a.n)}" d="${a.d}" fill="${fill}" fill-opacity="${s||SEG?.82:1}" tabindex="0" role="button" aria-label="${esc(a.n)}: ${s?s.n+" casas":"sin casas publicadas"}" vector-effect="non-scaling-stroke"/>`;
     if(SEG){lbls.push({a,s:v>0,val:v>0?v+(v===1?" hecho":" hechos"):"",sel});continue}
     const val=!s?"":S.metric==="vel"?(v==null?"s/d":dias(v)):S.metric==="ppm2"?(v?fmt(v):"s/d"):S.metric==="med"?k(v):S.metric==="n"?v:(v==null||isNaN(v)?"s/d":(v>0?"+":"")+v.toFixed(1)+"%");
     lbls.push({a,s,val,sel});
   }
-  g+=`<path d="${MAP.RD}" fill="none" stroke="#0c1a1d" stroke-width="4" stroke-opacity=".55" vector-effect="non-scaling-stroke" pointer-events="none"/><path d="${MAP.RD}" fill="none" stroke="#c9a27a" stroke-width="1.6" stroke-opacity=".75" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+  g+=`<path d="${MAP.RD}" fill="none" stroke="#fffdf8" stroke-width="4" stroke-opacity=".55" vector-effect="non-scaling-stroke" pointer-events="none"/><path d="${MAP.RD}" fill="none" stroke="#b07a45" stroke-width="1.6" stroke-opacity=".75" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
   // seleccionado arriba
   const selA=MAP.areas.find(a=>a.n===S.barrio);
-  if(selA)g+=`<path d="${selA.d}" fill="none" stroke="#fff" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+  if(selA)g+=`<path d="${selA.d}" fill="none" stroke="#1c2d2b" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
   const zs=Math.sqrt(vb.w/800);
   for(const {a,s,val,sel} of lbls){
     const [x,y]=a.cp;const big=a.ha>=40||sel;
     if(!s&&!big&&!sel)continue;
     const fs=(s?11.5:10)*zs;
-    g+=`<g class="lbl" pointer-events="none"><text x="${x}" y="${y}" text-anchor="middle" font-size="${fs}" font-family="Figtree" font-weight="${s?700:500}" fill="${s?"#eef5f3":"#6f8b88"}" paint-order="stroke" stroke="#0c1a1d" stroke-width="${3*zs}" stroke-linejoin="round">${esc(a.n)}</text>${s?`<text x="${x}" y="${y+fs*1.15}" text-anchor="middle" font-size="${10.5*zs}" font-family="JetBrains Mono" font-weight="600" fill="#eef5f3" paint-order="stroke" stroke="#0c1a1d" stroke-width="${3*zs}">${val}</text>`:""}</g>`;
+    g+=`<g class="lbl" pointer-events="none"><text x="${x}" y="${y}" text-anchor="middle" font-size="${fs}" font-family="Figtree" font-weight="${s?700:500}" fill="${s?"#1c2d2b":"#7d8a84"}" paint-order="stroke" stroke="#fffdf8" stroke-width="${3*zs}" stroke-linejoin="round">${esc(a.n)}</text>${s?`<text x="${x}" y="${y+fs*1.15}" text-anchor="middle" font-size="${10.5*zs}" font-family="JetBrains Mono" font-weight="600" fill="#1c2d2b" paint-order="stroke" stroke="#fffdf8" stroke-width="${3*zs}">${val}</text>`:""}</g>`;
   }
-  const lab=(lo3,la3,t,s=13,c="#3f8c97")=>{const [x,y]=px(lo3,la3);return `<text x="${x}" y="${y}" fill="${c}" font-size="${s*zs}" font-family="Bricolage Grotesque" font-style="italic" text-anchor="middle" pointer-events="none">${t}</text>`};
-  g+=lab(-71.628,-40.789,"Lago Nahuel Huapi",20)+lab(-71.688,-40.744,"Lago Correntoso",14)+lab(-71.686,-40.777,"Bahía Brava",11)+lab(-71.640,-40.792,"Bahía Las Balsas",11)+lab(-71.585,-40.770,"Ruta 40 → Bariloche",11,"#9a7c60")+lab(-71.69,-40.728,"Ruta 40 · 7 Lagos ↑",11,"#9a7c60");
+  const lab=(lo3,la3,t,s=13,c="#2c6f88")=>{const [x,y]=px(lo3,la3);return `<text x="${x}" y="${y}" fill="${c}" font-size="${s*zs}" font-family="Bricolage Grotesque" font-style="italic" text-anchor="middle" pointer-events="none">${t}</text>`};
+  g+=lab(-71.628,-40.789,"Lago Nahuel Huapi",20)+lab(-71.688,-40.744,"Lago Correntoso",14)+lab(-71.686,-40.777,"Bahía Brava",11)+lab(-71.640,-40.792,"Bahía Las Balsas",11)+lab(-71.585,-40.770,"Ruta 40 → Bariloche",11,"#8a5a32")+lab(-71.69,-40.728,"Ruta 40 · 7 Lagos ↑",11,"#8a5a32");
   // escala 1 km
   const [sx0]=px(-71.60,-40.79),[sx1]=px(-71.60+1/(111.32*Math.cos(40.76*Math.PI/180)),-40.79);
   const bx=vb.x+vb.w-(sx1-sx0)-18*zs,by=vb.y+vb.h-34*zs;
-  g+=`<g pointer-events="none"><path d="M${bx} ${by} h${sx1-sx0}" stroke="#86a19c" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${bx+(sx1-sx0)/2}" y="${by-5*zs}" text-anchor="middle" font-size="${10*zs}" font-family="JetBrains Mono" fill="#86a19c">1 km</text></g>`;
+  g+=`<g pointer-events="none"><path d="M${bx} ${by} h${sx1-sx0}" stroke="#6c7a73" stroke-width="2" vector-effect="non-scaling-stroke"/><text x="${bx+(sx1-sx0)/2}" y="${by-5*zs}" text-anchor="middle" font-size="${10*zs}" font-family="JetBrains Mono" fill="#6c7a73">1 km</text></g>`;
   svg.innerHTML=g;
   const lg=document.getElementById("legend");
   const label={ppm2:ALQ()?"Pesos por m² cubierto por mes (mediana)":"USD por m² cubierto (mediana)",med:ALQ()?"Alquiler mensual mediano":"Precio mediano",n:"Casas publicadas",var:"Variación de precio desde el primer relevamiento",vel:"Días hasta darse de baja (mediana)",seg:"Hechos delictivos reportados en medios locales (12 meses)"}[S.metric];
@@ -468,7 +473,7 @@ function spark(tr){
   const ys=tr.map(t=>t[1]),lo=Math.min(...ys),hi=Math.max(...ys),w=300,h=60;
   const pts=tr.map((t,i)=>[i/(tr.length-1)*w,h-6-(hi===lo?.5:(t[1]-lo)/(hi-lo))*(h-12)]);
   const last=pts.at(-1);
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:60px"><path d="M0 ${h} L${pts.map(p=>p.join(" ")).join(" L")} L${w} ${h}Z" fill="rgba(143,214,202,.12)"/><polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="var(--glacier)" stroke-width="2"/><circle cx="${last[0]}" cy="${last[1]}" r="4" fill="var(--glacier)"/></svg><p class="note num">Mediana ${usd(tr[0][1])} el ${dfmt(tr[0][0])} → ${usd(tr.at(-1)[1])} el ${dfmt(tr.at(-1)[0])}</p>`;
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:60px"><path d="M0 ${h} L${pts.map(p=>p.join(" ")).join(" L")} L${w} ${h}Z" fill="rgba(30,106,134,.12)"/><polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="var(--glacier)" stroke-width="2"/><circle cx="${last[0]}" cy="${last[1]}" r="4" fill="var(--glacier)"/></svg><p class="note num">Mediana ${usd(tr[0][1])} el ${dfmt(tr[0][0])} → ${usd(tr.at(-1)[1])} el ${dfmt(tr.at(-1)[0])}</p>`;
 }
 const distC=a=>{const dx=(a.c[0]+71.6462)*84.3,dy=(a.c[1]+40.7638)*110.6,d=Math.hypot(dx,dy);return d<.6?"en el centro":"a "+d.toFixed(1).replace(".",",")+" km del centro"};
 const METRICS={
