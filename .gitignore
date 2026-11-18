@@ -1,0 +1,4 @@
+node_modules/
+scraper/.perfil-navegador/
+__pycache__/
+.DS_Store
