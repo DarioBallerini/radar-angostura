@@ -106,6 +106,9 @@ main{padding:16px 24px 40px}
 .field input,.field select{background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:0;color:var(--fog);font:inherit;font-size:14px}
 .field select{appearance:none;-webkit-appearance:none;padding-right:36px;min-width:150px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2386a19c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .field select:hover,.field input:hover{border-color:#3d5d64}.field select:focus-visible,.field input:focus-visible{outline:2px solid var(--glacier);outline-offset:1px}
+.svc{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:13px;margin-top:8px}.svc dt{color:var(--mute)}.svc dd{margin:0}
+.svc .st{font:600 11px var(--mono);padding:1px 6px;border-radius:4px;margin-right:6px;background:var(--line)}.svc .si{background:rgba(155,210,127,.18);color:var(--good)}.svc .parcial{background:rgba(214,178,92,.18);color:#d6b25c}.svc .no{background:rgba(239,122,106,.18);color:var(--bad)}
+.svc a{color:var(--mute)}
 .star{background:none;border:0;cursor:pointer;font-size:16px;line-height:1;color:var(--line);padding:0 6px 0 0;vertical-align:-1px}.star[aria-pressed="true"]{color:#e8c25a}
 .notebtn{background:none;border:0;cursor:pointer;color:var(--mute);font-size:12px;text-decoration:underline;padding:0;margin-left:6px}
 .noterow td{background:var(--deep);padding:8px 12px}.noterow textarea{width:100%;min-height:54px;background:var(--ink);color:var(--fog);border:1px solid var(--line);border-radius:8px;padding:8px;font:14px inherit;resize:vertical}
@@ -485,7 +488,7 @@ function drawPanel(){
   const st=S.stats||{};
   if(!S.view.length){P.innerHTML=`<div class="eyebrow">Sin relevamientos</div><p>Todavía no hay datos de casas guardados.</p>`;return}
   const name=S.barrio;P.classList.remove("ranking");P.scrollTop=0;
-  if(name&&!st[name]&&AREA[name]){const a=AREA[name];P.innerHTML=`<button class="backbtn" id="back" type="button" aria-label="Volver al listado de barrios">← Todos los barrios</button><div><div class="eyebrow">Barrio · ${a.o?"límite oficial (OSM)":"límite aproximado"} · ${distC(a)}</div><h2>${esc(name)}</h2></div><p>No hay casas publicadas acá ${capped()?"hasta "+usd(budget()):"en este relevamiento"}.</p>${capped()?`<p class="note">Subí o quitá el precio máximo arriba para ver si hay oferta más cara.</p>`:""}${newsBlock(name)}`;P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};wireNews(P,name);return}
+  if(name&&!st[name]&&AREA[name]){const a=AREA[name];P.innerHTML=`<button class="backbtn" id="back" type="button" aria-label="Volver al listado de barrios">← Todos los barrios</button><div><div class="eyebrow">Barrio · ${a.o?"límite oficial (OSM)":"límite aproximado"} · ${distC(a)}</div><h2>${esc(name)}</h2></div><p>No hay casas publicadas acá ${capped()?"hasta "+usd(budget()):"en este relevamiento"}.</p>${capped()?`<p class="note">Subí o quitá el precio máximo arriba para ver si hay oferta más cara.</p>`:""}${svcBlock(name)}${newsBlock(name)}`;P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};wireNews(P,name);return}
   if(!name||!st[name]){
     const M=metric(S.metric);
     const src=S.metric==="seg"?Object.fromEntries(Object.entries(S.seg||{}).filter(([b])=>AREA[b]||b in st).map(([b,v])=>[b,{n:v.n,seg:v.hechos}])):st;
@@ -507,6 +510,7 @@ function drawPanel(){
   <p class="note num" style="margin:0">Publicadas hace ${dias(s.dias)} (mediana)${S.dates.length>1?` · ${s.bajas} dada${s.bajas===1?"":"s"} de baja${s.vel!=null?`, tardaron ${dias(s.vel)} (mediana)`:""}`:" · las bajas se cuentan desde el próximo relevamiento"}</p>
   <div><div class="eyebrow">Dispersión de precios</div>${(()=>{const mx=capped()?budget():ALQ()?Math.max(...ps.map(p=>p.price)):Math.min(1500000,Math.max(...ps.map(p=>p.price)));const bl=100;return `<div class="strip">${false?`<b style="position:absolute;left:${bl}%;top:0;bottom:0;border-left:1px dashed var(--glacier)"></b>`:""}${ps.map(p=>`<span style="left:${Math.min(100,p.price/mx*100).toFixed(1)}%;${p.price>budget()?"background:var(--mute)":""}" title="${usd(p.price)}"></span>`).join("")}<i style="left:0%">0</i><i style="left:50%">${k(mx/2)}</i><i style="left:100%">${k(mx)}${mx<Math.max(...ps.map(p=>p.price))?"+":""}</i></div>`})()}</div>
   <div><div class="eyebrow" style="margin-top:8px">Tendencia del precio mediano</div>${spark(s.trend)}</div>
+  ${svcBlock(name)}
   ${newsBlock(name)}
   <div class="pulse">${B.pulse.plus?`<div class="plus"><b>A favor</b>${esc(B.pulse.plus)}</div>`:""}${B.pulse.info&&!ALQ()?`<div><b>Qué se consigue</b>${esc(B.pulse.info)}</div>`:""}${B.pulse.risk?`<div class="risk"><b>Ojo con</b>${esc(B.pulse.risk)}</div>`:""}
   <p class="note">Notas orientativas armadas a partir de los avisos y del conocimiento general de la zona. Validalas con vecinos e inmobiliarias.</p></div>
@@ -515,6 +519,14 @@ function drawPanel(){
   P.querySelector("#back").onclick=()=>{S.barrio=null;drawMap();drawPanel()};
   P.querySelector("#verTodas").onclick=()=>{document.getElementById("fBarrio").value=name;S.pg.casas=1;drawTable()};
   wireNews(P,name);
+}
+/* ---------- Servicios por barrio (data/servicios.json) ---------- */
+fetch("data/servicios.json").then(r=>r.ok?r.json():null).then(j=>{if(j){S.svc=j;if(S.barrio)drawPanel()}}).catch(()=>{});
+function svcBlock(name){
+  const a=AREA[name],j=S.svc,b=j?.barrios?.[name]||{},F=j?.fuentes||{};
+  const L={si:"sí",parcial:"parcial",no:"no"};
+  const row=(t,v)=>`<dt>${t}</dt><dd>${v?`<span class="st ${v[0]}">${L[v[0]]||v[0]}</span>${esc(v[1])}${F[v[2]]?` <a href="${esc(F[v[2]][1])}" target="_blank" rel="noopener">(${esc(F[v[2]][0])})</a>`:""}`:`<span class="st">sin dato</span>`}</dd>`;
+  return `<div><div class="eyebrow">Servicios</div><dl class="svc"><dt>Al centro</dt><dd>${a?distC(a).replace(/^a /,"").replace(/ del centro$/,""):"–"}</dd>${row("Gas de red",b.gas)}${row("Cloacas",b.cloacas)}${row("Asfalto",b.asfalto)}</dl>${j?`<p class="note" style="margin-top:6px">${esc(j.general)}</p>`:""}</div>`;
 }
 /* ---------- Noticias ---------- */
 const dotOf=r=>r.del?"del":r.tono>0?"pos":r.tono<0?"neg":"";

@@ -1,0 +1,20 @@
+{"actualizado":"2026-11-18",
+"general":"En toda la Villa: el 75% de la población no tiene red cloacal y usa pozo ciego (2026), y el gas de red tiene cortes en invierno por falta de capacidad del gasoducto cordillerano. Lo que figura por barrio sale de notas de prensa y del municipio; donde no hay dato, preguntá en la inmobiliaria o al municipio.",
+"fuentes":{
+ "gas23":["Municipio, mar 2023","https://www.angosturainforma.gob.ar/avanza-la-obra-de-ampliacion-de-red-de-gas-natural-en-la-localidad/"],
+ "cloa22":["Municipio, may 2022","https://www.angosturainforma.gob.ar/avanzan-las-obras-de-ampliacion-de-red-cloacal-en-la-localidad/"],
+ "cloa26":["Diario 7 Lagos, may 2026","https://www.diario7lagos.com.ar/noticias/2026/05/15/78882-villa-la-angostura-avanza-hacia-un-turismo-sostenible-con-inversion-historica-en-infraestructura-sanitaria-basica"],
+ "pav26":["Zapala Noticias, may 2026","https://www.zapala-noticias.com.ar/villa-la-angostura-sumara-100-cuadras-de-asfalto-antes-de-la-veda-climatica-de-2027/"],
+ "pied26":["La Angostura Digital, sep 2026","https://www.laangosturadigital.com.ar/2026/09/08/el-municipio-lanzo-la-licitacion-para-pavimentar-mas-de-3-700-metros-de-calles-en-el-barrio-las-piedritas/"],
+ "once26":["Diario Neuquino, nov 2026","https://diarioneuquino.com.ar/villa-la-angostura-invertiran-mas-de-30-800-millones-en-asfalto-ciclovias-saneamiento-y-nuevos-espacios-publicos/"],
+ "gasc25":["La Angostura Digital, jul 2025","https://www.laangosturadigital.com.ar/2025/07/03/cortes-de-camuzzi-en-villa-la-angostura-y-san-martin-hay-caudal-pero-no-canerias-y-se-agrava-con-las-promesas-incumplidas/"]
+},
+"barrios":{
+ "Centro":{"asfalto":["si","Calles principales asfaltadas; 8 cuadras más en obra en la zona centro.","pav26"]},
+ "Las Piedritas":{"asfalto":["no","Calles de ripio; licitado el asfalto de 3.720 m (Las Retamas, Las Fucsias, Huemul, Moquehue y otras), obra prevista para 2027.","pied26"],"cloacas":["parcial","Ampliación de red cloacal en etapa final en 2022.","cloa22"]},
+ "El Once":{"asfalto":["no","Mayormente ripio; 37 cuadras incluidas en el convenio de pavimentación.","once26"],"gas":["parcial","Ampliación de red en la entrada del barrio (calle Calafate) en 2023.","gas23"]},
+ "El Mallín":{"asfalto":["no","Incluido en el plan provincial de 100 cuadras antes de la veda de 2027.","pav26"],"cloacas":["parcial","Colectora de calle Chumuy reparada y funcionando (2022).","cloa22"]},
+ "Barrio Norte":{"gas":["parcial","Ampliación de red por Av. Siete Lagos y Huiliches (2023).","gas23"]},
+ "Las Balsas":{"gas":["parcial","Red ampliada sobre calle Cruz del Sur (2023).","gas23"]},
+ "El Cruce":{"cloacas":["parcial","Ampliación de red en Cruce Norte, etapa final en 2022.","cloa22"]}
+}}
