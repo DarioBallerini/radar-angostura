@@ -30,11 +30,11 @@ button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--glacier);outline-offset:2px}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-header{position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding:20px 24px 14px;background:var(--deep);border-bottom:1px solid var(--line)}
+header{position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding:12px 24px;background:var(--deep);border-bottom:1px solid var(--line)}
 header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:linear-gradient(90deg,var(--glacier),#3f8a86 35%,var(--bosque) 65%,var(--arrayan))}
-.brand h1{font-size:30px;font-weight:800;line-height:1;color:var(--fog)}
+.brand h1{font-size:26px;white-space:nowrap;font-weight:800;line-height:1;color:var(--fog)}
 .brand h1 span{color:var(--glacier)}
-.brand p{margin:6px 0 0;color:var(--mute);font-size:13px}
+.foot{padding:0 24px 28px;color:var(--mute);font-size:12.5px;text-align:center}
 nav{display:flex;align-items:center;gap:4px;height:42px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:3px}
 nav a{display:flex;align-items:center;height:100%;padding:0 16px;border-radius:999px;text-decoration:none;color:var(--mute);font-weight:600;font-size:14px}
 nav a[aria-current="page"]{background:var(--glacier);color:var(--ink)}
@@ -58,8 +58,10 @@ main{padding:16px 24px 40px}
 .opsw{margin-left:auto;display:flex;align-items:center;gap:2px;height:42px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:3px}
 .opsw button{height:100%;border:0;background:none;color:var(--mute);font:600 14px var(--body,inherit);padding:0 16px;border-radius:999px;cursor:pointer}
 .opsw button[aria-pressed="true"]{background:var(--arrayan);color:var(--ink)}
+.pmax #pLbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.pmax input::placeholder{font-family:var(--body);font-size:14px;font-weight:400}
 .pmax{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
-.pmax input{width:130px;height:42px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:0 16px;font:600 14px var(--mono);color:var(--fog);-moz-appearance:textfield;appearance:textfield}
+.pmax input{width:180px;height:42px;background:var(--deep);border:1px solid var(--line);border-radius:999px;padding:0 16px;font:600 14px var(--mono);color:var(--fog);-moz-appearance:textfield;appearance:textfield}
 .pmax input::-webkit-outer-spin-button,.pmax input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .pmax button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:12px;text-decoration:underline}
 .legend{position:absolute;left:0;bottom:0;right:0;padding:8px 12px;background:linear-gradient(0deg,rgba(255,253,248,.96),rgba(255,253,248,.72));display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mute);flex-wrap:wrap}
@@ -163,11 +165,12 @@ tr:hover td{background:var(--deep)}
 .sortf{display:none}
 .mobnote{display:none}
 nav a svg{display:none}
+@media (max-width:860px) and (min-width:721px){nav a svg{display:none}.brand h1{font-size:22px}header nav a{padding:0 10px}header .pmax input{width:140px}}
+@media (max-width:1080px) and (min-width:721px){header{gap:12px 14px;padding:12px 18px}nav a{padding:0 12px}.pmax input{width:160px}}
 @media (max-width:720px){
   html,body{font-size:15px}
   header{padding:12px 14px 12px;gap:10px;align-items:center}
   .brand h1{font-size:23px}
-  #meta{display:none}
   .brand{flex:1 1 100%}
   .opsw{margin-left:0;flex:0 0 auto;height:40px}
   .opsw button{padding:0 14px}
@@ -180,7 +183,8 @@ nav a svg{display:none}
   nav a{flex:1;flex-direction:column;justify-content:center;gap:2px;height:52px;padding:0;font-size:12px;border-radius:12px}
   nav a svg{display:block;width:22px;height:22px}
   nav a[aria-current="page"]{background:rgba(30,106,134,.12);color:var(--glacier)}
-  main{padding:12px 14px calc(88px + env(safe-area-inset-bottom))}
+  main{padding:12px 14px 8px}
+  .foot{padding:0 14px calc(88px + env(safe-area-inset-bottom))}
   /* KPIs en tira deslizable */
   .kpis{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;margin:0 -14px 12px;padding:0 14px 2px;scrollbar-width:none}
   .kpis::-webkit-scrollbar{display:none}
@@ -245,7 +249,6 @@ nav a svg{display:none}
 <header>
   <div class="brand">
     <h1>Radar <span>Angostura</span></h1>
-    <p id="meta">Casas en venta en Villa La Angostura · cargando relevamientos…</p>
   </div>
   <div class="opsw" role="group" aria-label="Operación"><button type="button" data-op="venta" aria-pressed="true">Venta</button><button type="button" data-op="alquiler" aria-pressed="false">Alquiler</button></div>
   <label class="pmax"><span id="pLbl">Precio máx. (USD)</span><input id="pMax" type="number" min="0" step="10000" inputmode="numeric" placeholder="Sin límite"><button id="pClr" type="button" hidden>quitar</button></label>
@@ -325,6 +328,7 @@ nav a svg{display:none}
     </div>
   </section>
 </main>
+<footer id="meta" class="foot">cargando relevamientos…</footer>
 
 <script>
 /* ---------- Geografía: OpenStreetMap (data/vla-map.json) ---------- */
@@ -551,7 +555,7 @@ function setOpUI(){
   document.querySelectorAll(".opsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.op===S.op));
   document.getElementById("pLbl").textContent=ALQ()?"Alquiler máx. ($/mes)":"Precio máx. (USD)";
   pMax.step=ALQ()?100000:10000;
-  pMax.placeholder=isMob()?(ALQ()?"Alquiler máx. $/mes":"Precio máx. USD"):"Sin límite";
+  pMax.placeholder=ALQ()?"Alquiler máx. $/mes":"Precio máx. USD";
   document.getElementById("chipPpm2").textContent=ALQ()?"$ por m²":"USD por m²";
   document.getElementById("chipMed").textContent=ALQ()?"Alquiler mediano":"Precio mediano";
   const imp=document.querySelector('label[for="imp"]');if(S.db)imp.hidden=ALQ();
@@ -687,7 +691,7 @@ function drawKpis(){
   <div class="kpi"><small>${ALQ()?"Barrio más barato":"Más m² por dólar"}</small><b style="font-family:var(--display)">${best?esc(best[0]):"–"}</b><em>${best?(ALQ()?usd(best[1].med)+" mediana · "+best[1].n+" casas":fmt(best[1].ppm2)+" "+M2L()):""}</em></div>
   <div class="kpi"><small>Cambiaron de precio</small><b>${moved}</b><em>${S.dates.length>1?`${(S.goneView||[]).length} dadas de baja desde el ${dfmt(S.dates[0])}`:"bajas y cambios se miden desde el próximo relevamiento"}</em></div>`;
   const sc=S.lastSnap?.scope?.z;
-  document.getElementById("meta").textContent=`${S.props.length} casas ${OPW()} en Villa La Angostura · ${capped()?S.props.filter(p=>p.price<=budget()).length+" hasta "+usd(budget())+" · ":""}${(()=>{const u=new Set(S.props.flatMap(p=>p.srcs));const loc=[...u].filter(c=>!PORTALES.includes(c)).length;return "Argenprop, Zonaprop"+(loc?` y ${loc} inmobiliaria${loc===1?"":"s"} local${loc===1?"":"es"}`:"")})()} · actualizado ${dfmt(S.last)}${ALQ()?" · pesos por mes":""}`;
+  document.getElementById("meta").textContent=`Actualizado ${dfmt(S.last)} · ${(()=>{const u=new Set(S.props.flatMap(p=>p.srcs));const loc=[...u].filter(c=>!PORTALES.includes(c)).length;return "Fuentes: Argenprop, Zonaprop"+(loc?` y ${loc} inmobiliaria${loc===1?"":"s"} local${loc===1?"":"es"}`:"")})()}${ALQ()?" · alquileres en pesos por mes":""}`;
 }
 
 /* ---------- Favoritas y notas: quedan en este navegador ---------- */
