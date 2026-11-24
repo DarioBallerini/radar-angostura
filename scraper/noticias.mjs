@@ -130,12 +130,14 @@ async function laAngosturaDigital({ claves, desde }) {
 
 const SITIOS = [["da", "https://www.diarioandino.com.ar/", diarioAndino], ["lad", "https://www.laangosturadigital.com.ar/", laAngosturaDigital]];
 
-export async function relevar(page, fecha) {
+export async function relevar(pagina, fecha) {
+  const pg = typeof pagina === "function" ? pagina : async () => pagina;
   fs.mkdirSync(NDIR, { recursive: true });
   const d = new Date(fecha); d.setMonth(d.getMonth() - MESES);
   const arg = { claves: Object.keys(NALIAS), desde: d.toISOString().slice(0, 10) };
   for (const [medio, url, fn] of SITIOS) {
     try {
+      const page = await pg();
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
       const rows = await page.evaluate(fn, arg);
       fs.writeFileSync(path.join(NDIR, `${medio}-${fecha}.json`), JSON.stringify(rows));

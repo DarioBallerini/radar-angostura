@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { barrioTexto, barrioGeo, enVLA } from "./locales.mjs";
 import { estimar } from "./publicacion.mjs";
+import { arrastrar, anterior } from "./arrastre.mjs";
 
 const DIR = path.dirname(new URL(import.meta.url).pathname);
 const DATA = path.resolve(DIR, "../data");
@@ -124,17 +125,18 @@ export async function dolar(page) {
   } catch (e) { return null; }
 }
 
-export async function relevar(page, fecha) {
+export async function relevar(pagina, fecha) {
+  const pg = typeof pagina === "function" ? pagina : async () => pagina;
   fs.mkdirSync(RAW, { recursive: true });
   const save = (f, rows) => { fs.writeFileSync(path.join(RAW, `${f}-${fecha}.json`), JSON.stringify(rows)); console.log(`Alquileres ${f}: ${rows.length} avisos`); };
   for (const [f, fn] of [["argenprop", argenprop], ["zonaprop", zonaprop]]) {
-    try { save(f, await fn(page)); } catch (e) { console.error(`Alquileres ${f} falló:`, e.message); }
+    try { save(f, await fn(await pg())); } catch (e) { console.error(`Alquileres ${f} falló:`, e.message); }
   }
   for (const [f, url, fn] of SITIOS) {
-    try { await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 }); await sleep(2000); save(f, await page.evaluate(fn)); }
+    try { const page = await pg(); await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 }); await sleep(2000); save(f, await page.evaluate(fn)); }
     catch (e) { console.error(`Alquileres ${f} falló:`, e.message); }
   }
-  const tc = await dolar(page);
+  const tc = await dolar(await pg());
   if (tc) fs.writeFileSync(path.join(RAW, `dolar-${fecha}.json`), JSON.stringify(tc));
 }
 
@@ -185,14 +187,16 @@ export function normalizar(fecha) {
     push("am", slug, m ? num(m[1]) : null, "ARS", barrioTexto(texto, slug), (texto.match(/Cubiertos:\s*([\d.]+)/) || [])[1], (texto.match(/de lote:\s*([\d.]+)/) || [])[1],
       num((texto.match(/Habitaciones:\s*(\d+)/) || [])[1]), slug, texto);
   }
-  const out = { date: fecha, op: "alquiler", moneda: "ARS", tc, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "usd", "pub", "pubEst"], rows: filas, sources: SOURCES };
+  const { rows, arrastradas, log } = arrastrar(filas, anterior(DATA, "alquileres.json", fecha));
+  const out = { date: fecha, op: "alquiler", moneda: "ARS", tc, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "usd", "pub", "pubEst"], rows, sources: SOURCES };
+  if (Object.keys(arrastradas).length) out.arrastradas = arrastradas;
   const file = path.join(DATA, `alquiler-${fecha}.json`);
   fs.writeFileSync(file, JSON.stringify(out));
   const idxFile = path.join(DATA, "alquileres.json");
   const idx = fs.existsSync(idxFile) ? JSON.parse(fs.readFileSync(idxFile, "utf8")) : { files: [] };
   if (!idx.files.includes(path.basename(file))) { idx.files.push(path.basename(file)); idx.files.sort(); }
   fs.writeFileSync(idxFile, JSON.stringify(idx));
-  return { filas, descartes, file };
+  return { filas, descartes, file, log };
 }
 
 if (process.argv[1] === new URL(import.meta.url).pathname && process.argv[2] === "--build") {

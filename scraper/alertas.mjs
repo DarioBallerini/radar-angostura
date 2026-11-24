@@ -33,7 +33,7 @@ function comparar(snaps, tope, moneda) {
     else if (o.price < prev.price) { const k = clave(o); if (!bajas.has(k)) bajas.set(k, { ...o, antes: prev.price, link: url(b, o) }); }
   }
   const linea = o => `• ${o.barrio} · ${o.dorm != null ? o.dorm + " dorm · " : ""}${o.m2cub ? o.m2cub + " m² · " : ""}<b>${moneda} ${fmt(o.price)}</b>${o.antes ? ` (antes ${fmt(o.antes)}, −${Math.round((1 - o.price / o.antes) * 100)}%)` : ""}\n  <a href="${o.link}">ver aviso</a>`;
-  return { fecha: b.date, nuevas: [...nuevas.values()].sort((x, y) => x.price - y.price), bajas: [...bajas.values()].sort((x, y) => (x.price / x.antes) - (y.price / y.antes)), linea };
+  return { fecha: b.date, arrastradas: b.arrastradas || {}, sources: b.sources || {}, nuevas: [...nuevas.values()].sort((x, y) => x.price - y.price), bajas: [...bajas.values()].sort((x, y) => (x.price / x.antes) - (y.price / y.antes)), linea };
 }
 
 async function enviar(texto) {
@@ -49,14 +49,24 @@ const v = comparar(leer("snapshots.json"), tope, "USD");
 if (v) {
   const max = 15;
   if (v.nuevas.length) partes.push(`🏡 <b>${v.nuevas.length} casa${v.nuevas.length > 1 ? "s" : ""} nueva${v.nuevas.length > 1 ? "s" : ""} hasta USD ${fmt(tope)}</b>\n` + v.nuevas.slice(0, max).map(v.linea).join("\n") + (v.nuevas.length > max ? `\n…y ${v.nuevas.length - max} más` : ""));
-  if (v.bajas.length) partes.push(`📉 <b>${v.bajas.length} baja${v.bajas.length > 1 ? "ron" : "ó"} de precio</b>\n` + v.bajas.slice(0, max).map(v.linea).join("\n") + (v.bajas.length > max ? `\n…y ${v.bajas.length - max} más` : ""));
+  if (v.bajas.length) partes.push(`📉 <b>${v.bajas.length} ${v.bajas.length > 1 ? "bajaron" : "bajó"} de precio</b>\n` + v.bajas.slice(0, max).map(v.linea).join("\n") + (v.bajas.length > max ? `\n…y ${v.bajas.length - max} más` : ""));
 }
 if (cfg.TOPE_ALQ) {
   const a = comparar(leer("alquileres.json"), +cfg.TOPE_ALQ, "$");
   if (a?.nuevas.length) partes.push(`🔑 <b>Alquileres nuevos hasta $ ${fmt(+cfg.TOPE_ALQ)}/mes</b>\n` + a.nuevas.map(a.linea).join("\n"));
 }
+// fuentes que no se pudieron leer: se avisa siempre, aunque no haya novedades
+const caidas = Object.entries(v?.arrastradas || {});
+let aviso = "";
+if (caidas.length) {
+  const porFecha = {};
+  for (const [src, f] of caidas) (porFecha[f] ??= []).push(v.sources[src]?.[0] || src);
+  aviso = Object.entries(porFecha).map(([f, ns]) => `⚠️ No se pudo leer ${ns.join("/")}: se mantienen los datos del ${f}`).join("\n");
+  partes.push(aviso);
+}
 const fecha = v?.fecha || new Date().toISOString().slice(0, 10);
+const seco = process.argv.includes("--seco");
 let enviado = false;
 if (partes.length) { enviado = true; await enviar(`<b>Radar Angostura · relevamiento del ${fecha}</b>\n\n${partes.join("\n\n")}\n\n<a href="${PAGINA}">Abrir el radar</a>`); }
 else if (process.argv.includes("--prueba") || process.argv.includes("--siempre")) { enviado = true; await enviar(`<b>Radar Angostura · ${fecha}</b>\nSin casas nuevas hasta USD ${fmt(tope)} ni bajas de precio${v ? "" : " (hace falta un segundo relevamiento para comparar)"}.\n<a href="${PAGINA}">Abrir el radar</a>`); }
-console.log(`Alertas: ${v ? `${v.nuevas.length} nuevas, ${v.bajas.length} bajas` : "sin relevamiento anterior"} · ${enviado ? "enviado" : "nada para avisar"}`);
+console.log(`Alertas: ${v ? `${v.nuevas.length} nuevas, ${v.bajas.length} bajas` : "sin relevamiento anterior"}${caidas.length ? `, ${caidas.length} fuente(s) arrastrada(s)` : ""} · ${enviado ? (seco ? "no enviado (modo seco)" : "enviado") : "nada para avisar"}`);

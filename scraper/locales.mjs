@@ -158,10 +158,12 @@ const SITIOS = [
   ["ampropiedades", "https://ampropiedades.com.ar/e/casas/", amPropiedades],
 ];
 
-export async function relevar(page, fecha) {
+export async function relevar(pagina, fecha) {
+  const pg = typeof pagina === "function" ? pagina : async () => pagina;
   fs.mkdirSync(LOC, { recursive: true });
   for (const [fuente, url, fn] of SITIOS) {
     try {
+      const page = await pg();
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
       await sleep(2000);
       const rows = await page.evaluate(fn);

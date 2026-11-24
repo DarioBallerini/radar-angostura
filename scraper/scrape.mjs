@@ -8,6 +8,7 @@ import { relevar, normalizar, sourcesMeta } from "./locales.mjs";
 import * as noticias from "./noticias.mjs";
 import * as alquileres from "./alquileres.mjs";
 import { calibrar, estimar } from "./publicacion.mjs";
+import { arrastrar, anterior } from "./arrastre.mjs";
 
 // Se releva todo el mercado; el presupuesto se filtra en la app.
 const OUT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../data");
@@ -99,43 +100,62 @@ async function zonaprop(page) {
   return [...out.values()];
 }
 
-const ctx = await chromium.launchPersistentContext(PROFILE, { headless: false, viewport: { width: 1280, height: 900 }, locale: "es-AR" });
-const page = ctx.pages()[0] || await ctx.newPage();
-const rows = [];
-for (const [name, fn] of [["Argenprop", argenprop], ["Zonaprop", zonaprop]]) {
-  try { const r = await fn(page); console.log(`${name}: ${r.length} avisos`); rows.push(...r); }
-  catch (e) { console.error(`${name} falló:`, e.message); }
+// Navegador: si un sitio lo cierra (Zonaprop con su verificación lo hizo), se vuelve a abrir para seguir con el resto.
+let ctx = null, page = null;
+async function pagina() {
+  if (ctx && page && !page.isClosed()) { try { await page.evaluate(() => 1); return page; } catch {} }
+  if (ctx) { console.error("El navegador se cerró: se vuelve a abrir"); await ctx.close().catch(() => {}); }
+  ctx = await chromium.launchPersistentContext(PROFILE, { headless: false, viewport: { width: 1280, height: 900 }, locale: "es-AR" });
+  page = ctx.pages()[0] || await ctx.newPage();
+  return page;
 }
 const date = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
+const rows = [];
+for (const [name, fn] of [["Argenprop", argenprop], ["Zonaprop", zonaprop]]) {
+  try { const r = await fn(await pagina()); console.log(`${name}: ${r.length} avisos`); rows.push(...r); }
+  catch (e) { console.error(`${name} falló:`, e.message); }
+}
 // fecha de publicación de Zonaprop: se recalibra con unos avisos y se estima para todos
-try { console.log(`Zonaprop: ${await calibrar(page, rows.filter(r => r[0] === "z").map(r => r[1]), date)} avisos con fecha leída`); } catch (e) { console.error("Calibración falló:", e.message); }
+const zIds = rows.filter(r => r[0] === "z").map(r => r[1]);
+if (zIds.length) try { console.log(`Zonaprop: ${await calibrar(await pagina(), zIds, date)} avisos con fecha leída`); } catch (e) { console.error("Calibración falló:", e.message); }
 // Inmobiliarias locales: guarda data/locales/<fuente>-<fecha>.json y suma sus casas
 try {
-  await relevar(page, date);
+  await relevar(pagina, date);
   const { filas, descartes } = normalizar(date);
   console.log(`Inmobiliarias locales: ${filas.length} casas (descartadas ${descartes.length})`);
   rows.push(...filas);
 } catch (e) { console.error("Inmobiliarias locales fallaron:", e.message); }
 // Casas en alquiler permanente → data/alquiler-<fecha>.json (en pesos por mes)
 try {
-  await alquileres.relevar(page, date);
+  await alquileres.relevar(pagina, date);
   const r = alquileres.normalizar(date);
   console.log(`Alquileres: ${r.filas.length} casas (descartados ${r.descartes.length}, temporarios incluidos)`);
+  for (const l of r.log || []) console.log(`Alquileres arrastrados · ${l}`);
 } catch (e) { console.error("Alquileres fallaron:", e.message); }
-// Noticias por barrio de los medios locales → data/noticias.json
+// Noticias por barrio de los medios locales → data/noticias.json (si no se leyó ningún medio, queda el archivo anterior)
 try {
-  await noticias.relevar(page, date);
+  await noticias.relevar(pagina, date);
+  if (!fs.readdirSync(path.join(OUT_DIR, "noticias")).some(f => f.endsWith(`-${date}.json`))) throw new Error("no se leyó ningún medio, se mantiene data/noticias.json");
   const r = noticias.normalizar(date);
   console.log(`Noticias: ${r.notas} con barrio, ${r.hechos} hechos delictivos distintos`);
 } catch (e) { console.error("Noticias fallaron:", e.message); }
-await ctx.close();
+if (ctx) await ctx.close().catch(() => {});
+
+// Fuentes caídas: se mantienen sus avisos del relevamiento anterior en vez de darlos de baja
+const conPub = rows.map(r => r[0] === "z" ? [...r, estimar(r[1]), 1] : [...r, null, null]);
+const fresh = conPub.length;
+const { rows: finales, arrastradas, log } = arrastrar(conPub, anterior(OUT_DIR, "snapshots.json", date));
+for (const l of log) console.error(`Fuente caída · ${l}`);
+const leidas = new Set(finales.filter(r => !(r[0] in arrastradas)).map(r => r[0]));
+if (!fresh || !leidas.size) { console.error(`Relevamiento vacío (${fresh} avisos leídos): no se escribe el snapshot`); process.exit(1); }
 fs.mkdirSync(OUT_DIR, { recursive: true });
 const file = path.join(OUT_DIR, `snapshot-${date}.json`);
-const conPub = rows.map(r => r[0] === "z" ? [...r, estimar(r[1]), 1] : [...r, null, null]);
-fs.writeFileSync(file, JSON.stringify({ date, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "pub", "pubEst"], rows: conPub, sources: sourcesMeta() }));
+const snap = { date, fields: ["src", "id", "price", "barrio", "m2cub", "m2tot", "dorm", "slug", "pub", "pubEst"], rows: finales, sources: sourcesMeta() };
+if (Object.keys(arrastradas).length) snap.arrastradas = arrastradas;
+fs.writeFileSync(file, JSON.stringify(snap));
 // índice de relevamientos publicados que lee la app
 const idxFile = path.join(OUT_DIR, "snapshots.json");
 const idx = fs.existsSync(idxFile) ? JSON.parse(fs.readFileSync(idxFile, "utf8")) : { files: [] };
 if (!idx.files.includes(path.basename(file))) { idx.files.push(path.basename(file)); idx.files.sort(); }
 fs.writeFileSync(idxFile, JSON.stringify(idx));
-console.log(`Listo: ${rows.length} avisos → ${file}`);
+console.log(`Listo: ${finales.length} avisos (${fresh} leídos hoy${Object.keys(arrastradas).length ? ", arrastradas: " + Object.keys(arrastradas).join(", ") : ""}) → ${file}`);
