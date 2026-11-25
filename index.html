@@ -256,12 +256,14 @@ nav a,.opsw button{font-family:var(--display);text-transform:uppercase;font-size
 nav a:hover,.opsw button:hover{color:#fff}
 nav a[aria-current="page"],.opsw button[aria-pressed="true"]{background:var(--amarillo);color:#2b1d13}
 header :focus-visible{outline-color:var(--amarillo)}
-.pmax input{width:150px;background:#fff;border:0;border-radius:4px;font:600 15px var(--body)}
+.pmax{position:relative;height:42px;padding:3px;background:var(--cartel2);border-radius:4px}
+.pmax input{width:160px;height:36px;padding:0 30px 0 12px;background:#fff;border:0;border-radius:3px;font:600 15px var(--body)}
+.pmax #pClr{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:24px;height:24px;display:grid;place-items:center;border-radius:12px;color:var(--mute);font-size:18px;line-height:1;text-decoration:none}
+.pmax #pClr:hover{background:var(--raise);color:var(--fog)}
 .presets{display:flex;gap:4px;height:42px;background:var(--cartel2);border-radius:4px;padding:3px}
-.presets button{border:0;background:none;color:var(--madera);font:600 15px var(--display);padding:0 11px;border-radius:3px;cursor:pointer}
+.presets button{width:48px;border:0;background:none;color:var(--madera);font:600 15px var(--display);padding:0;border-radius:3px;cursor:pointer}
 .presets button:hover{color:#fff}
 .presets button[aria-pressed="true"]{background:#fff;color:#2b1d13}
-.pmax button{color:var(--madera)}
 .kpi{border:1px solid var(--line);border-radius:6px;background:#f6f5f0}
 .kpi:first-child{background:var(--bosque);border-color:var(--bosque);color:#fff}
 .kpi:first-child small,.kpi:first-child em,.kpi:first-child b{color:#fff}
@@ -306,7 +308,8 @@ th{font-family:var(--display);font-size:14px;color:var(--cartel);background:#f6f
 @media (max-width:720px){
   header{padding:10px 14px 14px}
   .brand h1{font-size:28px}
-  .presets{flex:1 1 100%;order:3;height:40px}.presets button{flex:1}
+  .presets{flex:1 1 100%;order:3;height:40px}.presets button{flex:1;width:auto}
+  .pmax{height:40px}.pmax input{height:34px;width:100%}
   nav{background:var(--cartel);border:0;box-shadow:none}
   nav a{color:var(--madera)}
   nav a[aria-current="page"]{background:var(--amarillo);color:#2b1d13}
@@ -333,7 +336,7 @@ th{font-family:var(--display);font-size:14px;color:var(--cartel);background:#f6f
     <h1>Radar <span>Angostura</span></h1>
   </div>
   <div class="opsw" role="group" aria-label="Operación"><button type="button" data-op="venta" aria-pressed="true">Venta</button><button type="button" data-op="alquiler" aria-pressed="false">Alquiler</button></div>
-  <label class="pmax"><span id="pLbl">Precio máx. (USD)</span><input id="pMax" type="number" min="0" step="10000" inputmode="numeric" placeholder="Sin límite"><button id="pClr" type="button" hidden>quitar</button></label>
+  <label class="pmax"><span id="pLbl">Precio máx. (USD)</span><input id="pMax" type="number" min="0" step="10000" inputmode="numeric" placeholder="Sin límite"><button id="pClr" type="button" aria-label="Quitar el tope" title="Quitar el tope" hidden>×</button></label>
   <div class="presets" id="presets" role="group" aria-label="Topes rápidos"></div>
   <nav aria-label="Secciones">
     <a href="#mapa" data-v="mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Mapa</a>
