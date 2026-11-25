@@ -1,0 +1,26 @@
+/* UX comunes */
+.presets{display:flex;gap:4px}
+.presets button{height:30px;padding:0 10px;border:1px solid var(--line);background:var(--deep);color:var(--mute);font:600 12px var(--mono);cursor:pointer;border-radius:var(--r-s,6px)}
+.presets button[aria-pressed="true"]{background:var(--fog);color:var(--deep);border-color:var(--fog)}
+.tope{position:relative;height:22px;background:var(--raise);border-radius:var(--r-s,4px);overflow:hidden;font-size:12px}
+.tope i{position:absolute;inset:0 auto 0 0;background:var(--meter,var(--glacier));opacity:.22}
+.tope span{position:relative;line-height:22px;padding-left:8px;color:var(--fog)}
+#tbl td{position:relative}.tbar{position:absolute;right:12px;bottom:4px;height:3px;max-width:calc(100% - 24px);background:var(--meter,var(--glacier));opacity:.55;border-radius:2px}
+.panel.ranking .mini li a{position:relative;overflow:hidden}
+.rb{position:absolute;left:0;top:0;bottom:0;background:var(--meter,var(--glacier));opacity:.13;pointer-events:none}
+.mini li a>span{position:relative}
+.fbtn{display:none}
+@media (max-width:720px){
+ .presets{flex:1 1 100%;order:3}.presets button{flex:1;height:34px}
+ #v-casas .bar{grid-template-columns:auto 1fr}
+ #v-casas .bar .field{display:none}
+ #v-casas .bar .field.sortf{display:grid}
+ #v-casas .bar.open .field{display:grid}
+ #v-casas .bar .sortf{font-size:0}#v-casas .bar .sortf select{font-size:15px}
+ .fbtn{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 14px;border:1px solid var(--fog);background:var(--fog);color:var(--deep);font-weight:600;border-radius:var(--r-s,8px);align-self:end}
+ .fbtn b{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:10px;background:var(--deep);color:var(--fog);font-size:12px}
+
+ .hc-p{font-size:19px}
+}
+#pClr{display:none!important}
+@media (min-width:721px){.pmax input{width:150px}header{gap:10px 16px}}
